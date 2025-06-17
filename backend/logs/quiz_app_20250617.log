@@ -1,0 +1,7 @@
+2025-06-17 16:50:04,524 | INFO     | quiz_app | 🚀 Démarrage de l'application Spark Quiz API
+2025-06-17 16:50:04,541 | INFO     | quiz_app | ✅ Base de données déjà initialisée avec 6 questions
+2025-06-17 16:50:04,542 | INFO     | quiz_app | ✅ Application démarrée avec succès
+2025-06-17 16:50:30,349 | INFO     | quiz_app | Accès à la page d'accueil de l'API
+2025-06-17 16:56:01,205 | INFO     | quiz_app | 🚀 Démarrage de l'application Spark Quiz API
+2025-06-17 16:56:01,225 | INFO     | quiz_app | ✅ Base de données déjà initialisée avec 6 questions
+2025-06-17 16:56:01,226 | INFO     | quiz_app | ✅ Application démarrée avec succès

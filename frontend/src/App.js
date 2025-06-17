@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import HomePage from './components/HomePage';
-import Questionnaire from './components/Questionnaire';
-
-const TECHNOLOGIES = [
-  { value: 'spark', label: 'Apache Spark' },
-  { value: 'docker', label: 'Docker' },
-  { value: 'git', label: 'Git' },
-  // Ajoute d'autres technos ici
-];
+import SparkQuiz from './components/SparkQuiz';
 
 function App() {
   const [selectedTech, setSelectedTech] = useState(null);
 
   if (!selectedTech) {
-    return <HomePage onSelectTech={setSelectedTech} />;
+    return (
+      <div className="App">
+        <HomePage onSelectTech={setSelectedTech} />
+      </div>
+    );
   }
 
-  return <Questionnaire technology={selectedTech} onBack={() => setSelectedTech(null)} />;
+  return (
+    <div className="App">
+      <SparkQuiz technology={selectedTech} onBack={() => setSelectedTech(null)} />
+    </div>
+  );
 }
 
-export default App; 
+export default App;

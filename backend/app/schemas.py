@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 class SparkQuestionBase(BaseModel):
@@ -16,6 +16,6 @@ class SparkQuestionCreate(SparkQuestionBase):
 
 class SparkQuestion(SparkQuestionBase):
     id: int
-
-    class Config:
-        orm_mode = True 
+    
+    # Configuration pour Pydantic v2
+    model_config = ConfigDict(from_attributes=True)
