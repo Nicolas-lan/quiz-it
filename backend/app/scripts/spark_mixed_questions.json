@@ -1,0 +1,146 @@
+[
+  {
+    "question_text": "Qu'est-ce qu'un RDD dans Apache Spark?",
+    "options": [
+      "Resilient Distributed Dataset",
+      "Rapid Data Distribution", 
+      "Real-time Data Delivery",
+      "Remote Database Driver"
+    ],
+    "correct_answer": "Resilient Distributed Dataset",
+    "explanation": "RDD signifie Resilient Distributed Dataset, c'est la structure de données fondamentale de Spark.",
+    "difficulty": 1,
+    "category": "RDD",
+    "tags": ["rdd", "basic", "concepts"]
+  },
+  {
+    "question_text": "Quelle est la différence entre une transformation et une action dans Spark?",
+    "options": [
+      "Les transformations sont lazy, les actions sont immédiates",
+      "Les transformations modifient les données, les actions les lisent",
+      "Les transformations sont plus rapides que les actions",
+      "Il n'y a pas de différence"
+    ],
+    "correct_answer": "Les transformations sont lazy, les actions sont immédiates",
+    "explanation": "Les transformations dans Spark sont évaluées de manière paresseuse (lazy), tandis que les actions déclenchent l'exécution.",
+    "difficulty": 2,
+    "category": "RDD",
+    "tags": ["transformations", "actions", "lazy_evaluation"]
+  },
+  {
+    "question_text": "Que fait ce code Spark?",
+    "code_image": "spark_filter_example.png",
+    "options": [
+      "Filtre les lignes où age > 18",
+      "Sélectionne la colonne age",
+      "Compte le nombre de personnes",
+      "Trie par âge"
+    ],
+    "correct_answer": "Filtre les lignes où age > 18",
+    "explanation": "Le code utilise filter() pour ne garder que les lignes où la colonne age est supérieure à 18.",
+    "difficulty": 2,
+    "category": "DataFrame",
+    "tags": ["dataframe", "filter", "code_example"]
+  },
+  {
+    "question_text": "Comment optimiser les performances d'un job Spark?",
+    "options": [
+      "Utiliser le cache pour les RDD/DataFrames réutilisés",
+      "Partitionner correctement les données",
+      "Éviter les shuffles inutiles",
+      "Toutes les réponses ci-dessus"
+    ],
+    "correct_answer": "Toutes les réponses ci-dessus",
+    "explanation": "L'optimisation Spark nécessite plusieurs techniques : cache, partitioning, et minimisation des shuffles.",
+    "difficulty": 3,
+    "category": "Performance",
+    "tags": ["performance", "optimization", "cache", "partitioning"]
+  },
+  {
+    "question_text": "Complétez ce code pour grouper par département et calculer le salaire moyen:",
+    "code_image": "spark_groupby_blank.png",
+    "options": [
+      "df.groupBy('department').avg('salary')",
+      "df.groupBy('department').mean('salary')", 
+      "df.groupBy('department').agg(avg('salary'))",
+      "Toutes les réponses sont correctes"
+    ],
+    "correct_answer": "Toutes les réponses sont correctes",
+    "explanation": "Spark propose plusieurs syntaxes équivalentes pour calculer la moyenne : avg(), mean(), et agg(avg()).",
+    "difficulty": 3,
+    "category": "DataFrame",
+    "tags": ["groupby", "aggregation", "code_completion"]
+  },
+  {
+    "question_text": "Qu'est-ce que le Catalyst Optimizer dans Spark?",
+    "options": [
+      "Un optimiseur de requêtes pour Spark SQL",
+      "Un outil de monitoring des performances",
+      "Un algorithme de machine learning",
+      "Un système de cache distribué"
+    ],
+    "correct_answer": "Un optimiseur de requêtes pour Spark SQL",
+    "explanation": "Catalyst est l'optimiseur de requêtes de Spark SQL qui améliore automatiquement les performances des requêtes.",
+    "difficulty": 3,
+    "category": "Spark SQL",
+    "tags": ["catalyst", "optimizer", "spark_sql"]
+  },
+  {
+    "question_text": "Analysez cette architecture Spark. Quel composant manque?",
+    "diagram_image": "spark_architecture_incomplete.png",
+    "options": [
+      "Cluster Manager",
+      "Driver Program",
+      "Executors",
+      "Worker Nodes"
+    ],
+    "correct_answer": "Cluster Manager",
+    "explanation": "Le diagramme montre Driver et Executors, mais il manque le Cluster Manager qui gère les ressources.",
+    "difficulty": 3,
+    "category": "Architecture",
+    "tags": ["architecture", "cluster_manager", "visual"]
+  },
+  {
+    "question_text": "Quelle est la différence entre coalesce() et repartition()?",
+    "options": [
+      "coalesce() ne provoque pas de shuffle, repartition() si",
+      "coalesce() augmente les partitions, repartition() les diminue",
+      "coalesce() est plus lent que repartition()",
+      "Il n'y a pas de différence"
+    ],
+    "correct_answer": "coalesce() ne provoque pas de shuffle, repartition() si",
+    "explanation": "coalesce() combine les partitions existantes sans shuffle, tandis que repartition() redistribue les données avec shuffle.",
+    "difficulty": 4,
+    "category": "Performance",
+    "tags": ["partitioning", "coalesce", "repartition", "shuffle"]
+  },
+  {
+    "question_text": "Dans Spark Streaming, qu'est-ce qu'un DStream?",
+    "options": [
+      "Discretized Stream - une séquence de RDDs",
+      "Data Stream - un flux de données continu",
+      "Distributed Stream - un stream distribué",
+      "Dynamic Stream - un stream dynamique"
+    ],
+    "correct_answer": "Discretized Stream - une séquence de RDDs",
+    "explanation": "Un DStream (Discretized Stream) représente un flux de données comme une séquence de RDDs dans le temps.",
+    "difficulty": 2,
+    "category": "Streaming",
+    "tags": ["streaming", "dstream", "real_time"]
+  },
+  {
+    "question_text": "Que montre cette interface Spark UI?",
+    "screenshot_image": "spark_ui_sql_tab.png",
+    "options": [
+      "L'onglet SQL avec les requêtes exécutées",
+      "L'onglet Jobs avec les tâches en cours",
+      "L'onglet Storage avec les RDDs cachés",
+      "L'onglet Executors avec les workers"
+    ],
+    "correct_answer": "L'onglet SQL avec les requêtes exécutées",
+    "explanation": "L'interface montre l'onglet SQL de Spark UI avec l'historique des requêtes SQL exécutées et leurs métriques.",
+    "difficulty": 2,
+    "category": "Spark SQL",
+    "tags": ["spark_ui", "monitoring", "sql"]
+  }
+]

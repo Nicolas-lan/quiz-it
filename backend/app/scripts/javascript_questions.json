@@ -1,0 +1,140 @@
+{
+  "technology": "JavaScript",
+  "questions": [
+    {
+      "category": "JS Basics",
+      "question_text": "Quel est le résultat de: console.log(typeof null);",
+      "options": ["\"object\"", "\"null\"", "\"undefined\"", "\"boolean\""],
+      "correct_answer": "\"object\"",
+      "explanation": "En JavaScript, typeof null retourne 'object'. C'est un bug historique qui est maintenu pour la compatibilité.",
+      "difficulty": 2,
+      "tags": ["typeof", "null", "quirks"]
+    },
+    {
+      "category": "Variables",
+      "question_text": "Quelle est la différence principale entre 'let' et 'var'?",
+      "options": ["let a une portée de bloc, var a une portée de fonction", "let est plus rapide que var", "let ne peut pas être redéclarée, var peut l'être", "Il n'y a pas de différence"],
+      "correct_answer": "let a une portée de bloc, var a une portée de fonction",
+      "explanation": "let est limitée au bloc où elle est déclarée, tandis que var a une portée de fonction ou globale.",
+      "difficulty": 1,
+      "tags": ["let", "var", "scope", "es6"]
+    },
+    {
+      "category": "Functions",
+      "question_text": "Que fait cette fonction? const double = x => x * 2;",
+      "options": ["Multiplie x par 2 et retourne le résultat", "Crée une variable nommée double", "Déclare une fonction sans paramètres", "Génère une erreur de syntaxe"],
+      "correct_answer": "Multiplie x par 2 et retourne le résultat",
+      "explanation": "C'est une arrow function ES6 qui prend un paramètre x et retourne x multiplié par 2.",
+      "difficulty": 1,
+      "tags": ["arrow_function", "es6", "return"]
+    },
+    {
+      "category": "Objects",
+      "question_text": "Comment accéder à la propriété 'name' d'un objet user de manière sécurisée?",
+      "options": ["user?.name", "user.name || undefined", "user.hasOwnProperty('name') ? user.name : undefined", "Toutes les réponses ci-dessus"],
+      "correct_answer": "Toutes les réponses ci-dessus",
+      "explanation": "Toutes ces méthodes permettent d'accéder à une propriété de manière sécurisée, l'optional chaining (?.) étant la plus moderne.",
+      "difficulty": 2,
+      "tags": ["optional_chaining", "objects", "safe_access"]
+    },
+    {
+      "category": "Arrays",
+      "question_text": "Quel est le résultat de: [1, 2, 3].map(x => x * 2);",
+      "options": ["[2, 4, 6]", "[1, 2, 3, 2, 4, 6]", "6", "undefined"],
+      "correct_answer": "[2, 4, 6]",
+      "explanation": "La méthode map() crée un nouveau tableau avec les résultats de l'appel d'une fonction sur chaque élément.",
+      "difficulty": 1,
+      "tags": ["map", "arrays", "functional_programming"]
+    },
+    {
+      "category": "Async",
+      "question_text": "Quelle est la différence entre une Promise et async/await?",
+      "options": ["async/await est du sucre syntaxique pour les Promises", "Les Promises sont plus rapides", "async/await remplace complètement les Promises", "Il n'y a pas de différence"],
+      "correct_answer": "async/await est du sucre syntaxique pour les Promises",
+      "explanation": "async/await facilite l'écriture et la lecture du code asynchrone, mais utilise les Promises en arrière-plan.",
+      "difficulty": 2,
+      "tags": ["async", "await", "promises", "asynchronous"]
+    },
+    {
+      "category": "ES6",
+      "question_text": "Que fait la destructuration: const {name, age} = user;",
+      "options": ["Extrait les propriétés name et age de l'objet user", "Crée un nouvel objet avec name et age", "Supprime name et age de user", "Génère une erreur"],
+      "correct_answer": "Extrait les propriétés name et age de l'objet user",
+      "explanation": "La destructuration permet d'extraire des valeurs d'objets ou de tableaux dans des variables distinctes.",
+      "difficulty": 1,
+      "tags": ["destructuring", "es6", "objects"]
+    },
+    {
+      "category": "Closures",
+      "question_text": "Que va afficher ce code?\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}",
+      "options": ["3 3 3", "0 1 2", "2 2 2", "undefined undefined undefined"],
+      "correct_answer": "3 3 3",
+      "explanation": "Avec var, la variable i est partagée. Quand setTimeout s'exécute, la boucle est terminée et i vaut 3.",
+      "difficulty": 3,
+      "tags": ["closures", "var", "setTimeout", "scope"]
+    },
+    {
+      "category": "Prototypes",
+      "question_text": "Comment ajouter une méthode à tous les objets Array?",
+      "options": ["Array.prototype.myMethod = function() {...}", "Array.myMethod = function() {...}", "Object.prototype.myMethod = function() {...}", "Impossible en JavaScript"],
+      "correct_answer": "Array.prototype.myMethod = function() {...}",
+      "explanation": "En modifiant Array.prototype, on ajoute la méthode à tous les instances d'Array existantes et futures.",
+      "difficulty": 2,
+      "tags": ["prototype", "inheritance", "methods"]
+    },
+    {
+      "category": "DOM",
+      "question_text": "Quelle méthode moderne remplace getElementById?",
+      "options": ["querySelector", "getElementsByClassName", "getElementsByTagName", "find"],
+      "correct_answer": "querySelector",
+      "explanation": "querySelector est plus flexible et moderne, permettant d'utiliser tous les sélecteurs CSS.",
+      "difficulty": 1,
+      "tags": ["dom", "querySelector", "modern_js"]
+    },
+    {
+      "category": "Events",
+      "question_text": "Comment empêcher le comportement par défaut d'un événement?",
+      "options": ["event.preventDefault()", "event.stopPropagation()", "return false", "event.cancel()"],
+      "correct_answer": "event.preventDefault()",
+      "explanation": "preventDefault() empêche l'action par défaut de l'événement (ex: soumission de formulaire).",
+      "difficulty": 1,
+      "tags": ["events", "preventDefault", "dom"]
+    },
+    {
+      "category": "Type Conversion",
+      "question_text": "Quel est le résultat de: '5' + 3 + 2;",
+      "options": ["\"532\"", "10", "\"53\"", "NaN"],
+      "correct_answer": "\"532\"",
+      "explanation": "JavaScript convertit en string et concatène de gauche à droite: '5' + 3 = '53', puis '53' + 2 = '532'.",
+      "difficulty": 2,
+      "tags": ["type_coercion", "strings", "operators"]
+    },
+    {
+      "category": "Modules",
+      "question_text": "Comment importer une fonction nommée 'calculate' depuis un module?",
+      "options": ["import { calculate } from './module.js'", "import calculate from './module.js'", "const calculate = require('./module.js')", "import * as calculate from './module.js'"],
+      "correct_answer": "import { calculate } from './module.js'",
+      "explanation": "Pour importer une export nommée, on utilise les accolades { } dans l'instruction import.",
+      "difficulty": 1,
+      "tags": ["modules", "import", "es6"]
+    },
+    {
+      "category": "Advanced",
+      "question_text": "Que fait le spread operator (...) avec les objets?",
+      "options": ["Copie toutes les propriétés dans un nouvel objet", "Supprime l'objet", "Convertit l'objet en array", "Crée une référence à l'objet"],
+      "correct_answer": "Copie toutes les propriétés dans un nouvel objet",
+      "explanation": "Le spread operator (...) effectue une copie superficielle des propriétés énumérables d'un objet.",
+      "difficulty": 2,
+      "tags": ["spread_operator", "objects", "es6", "copying"]
+    },
+    {
+      "category": "Performance",
+      "question_text": "Quelle méthode est la plus performante pour chercher dans un grand array?",
+      "options": ["find() pour trouver un élément", "includes() pour vérifier l'existence", "indexOf() pour obtenir l'index", "Toutes sont équivalentes"],
+      "correct_answer": "indexOf() pour obtenir l'index",
+      "explanation": "indexOf() s'arrête dès qu'il trouve l'élément et retourne directement l'index, souvent plus rapide que find().",
+      "difficulty": 3,
+      "tags": ["performance", "arrays", "search", "optimization"]
+    }
+  ]
+}

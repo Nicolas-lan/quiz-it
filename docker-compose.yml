@@ -1,29 +1,106 @@
 version: '3.8'
 
-volumes:
-  quiz_data:  # Volume persistant pour la base de données
-  node_modules:  # Volume dédié pour node_modules
-
 services:
+  postgres:
+    image: postgres:15
+    container_name: quiz-postgres
+    environment:
+      POSTGRES_USER: quiz_user
+      POSTGRES_PASSWORD: quiz_password_2024
+      POSTGRES_DB: quiz_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - quiz-network
+    restart: unless-stopped
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c work_mem=4MB
+      -c maintenance_work_mem=64MB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quiz_user -d quiz_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quiz-backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app:ro  # Mode lecture seule pour le code source
-      - quiz_data:/app/data  # Volume persistant pour la base de données
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=sqlite:///./data/spark_quiz.db
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      - POSTGRES_HOST=postgres
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quiz-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   frontend:
     build: ./frontend
+    container_name: quiz-frontend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app:ro  # Mode lecture seule pour le code source
-      - node_modules:/app/node_modules  # Volume dédié pour node_modules
     environment:
       - REACT_APP_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app:ro
+      - node_modules:/app/node_modules
     depends_on:
-      - backend 
+      backend:
+        condition: service_healthy
+    networks:
+      - quiz-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: quiz-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - quiz-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  node_modules:
+    driver: local
+
+networks:
+  quiz-network:
+    driver: bridge

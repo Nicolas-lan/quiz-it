@@ -1,0 +1,135 @@
+[
+  {
+    "question_text": "Que fait ce code Spark?",
+    "question_image": "spark_code_example.png",
+    "options": [
+      "Lit un fichier CSV et affiche les premières lignes",
+      "Crée un RDD vide",
+      "Sauvegarde un DataFrame",
+      "Connecte à une base de données"
+    ],
+    "correct_answer": "Lit un fichier CSV et affiche les premières lignes",
+    "explanation": "Ce code utilise spark.read.csv() pour lire un fichier CSV et .show() pour afficher les données.",
+    "difficulty": 2,
+    "category": "Code Examples",
+    "tags": ["dataframe", "csv", "read"]
+  },
+  {
+    "question_text": "Complétez le code manquant dans cette fonction Spark:",
+    "code_image": "spark_code_with_blanks.png",
+    "options": [
+      ".groupBy('column').count()",
+      ".select('column').distinct()",
+      ".filter('column > 10')",
+      ".orderBy('column')"
+    ],
+    "correct_answer": ".groupBy('column').count()",
+    "explanation": "Pour compter les occurrences par groupe, on utilise groupBy() suivi de count().",
+    "difficulty": 3,
+    "category": "Code Examples",
+    "tags": ["groupby", "aggregation", "code_completion"]
+  },
+  {
+    "question_text": "Que représente ce diagramme d'architecture Spark?",
+    "images": {
+      "diagram": "spark_architecture_diagram.png",
+      "example": "spark_cluster_setup.png"
+    },
+    "options": [
+      "Architecture maître-esclave avec Driver et Executors",
+      "Pipeline de transformation de données",
+      "Système de fichiers distribué",
+      "Architecture de base de données"
+    ],
+    "correct_answer": "Architecture maître-esclave avec Driver et Executors",
+    "explanation": "Le diagramme montre l'architecture classique de Spark avec un Driver qui coordonne les Executors sur les worker nodes.",
+    "difficulty": 2,
+    "category": "Architecture",
+    "tags": ["architecture", "cluster", "driver", "executor"]
+  },
+  {
+    "question_text": "Analysez cette capture d'écran de l'interface Spark UI. Que pouvez-vous déduire?",
+    "images": {
+      "screenshot": "spark_ui_jobs_page.png"
+    },
+    "options": [
+      "Il y a 3 jobs en cours d'exécution",
+      "Tous les jobs ont échoué",
+      "Le job 0 a pris 2.5 secondes à s'exécuter",
+      "Il n'y a aucune donnée traitée"
+    ],
+    "correct_answer": "Le job 0 a pris 2.5 secondes à s'exécuter",
+    "explanation": "La colonne Duration montre que le Job 0 a une durée de 2.5s, indiquant le temps d'exécution.",
+    "difficulty": 3,
+    "category": "Performance",
+    "tags": ["spark_ui", "jobs", "monitoring", "performance"]
+  },
+  {
+    "question_text": "Quel est le problème dans ce Dockerfile?",
+    "images": {
+      "code": "dockerfile_with_error.png"
+    },
+    "options": [
+      "FROM instruction manquante",
+      "RUN commands mal formatées", 
+      "COPY source inexistante",
+      "Toutes les réponses ci-dessus"
+    ],
+    "correct_answer": "Toutes les réponses ci-dessus",
+    "explanation": "Ce Dockerfile présente plusieurs erreurs: pas de FROM, syntaxe RUN incorrecte, et COPY vers un fichier qui n'existe pas.",
+    "difficulty": 4,
+    "category": "Code Examples",
+    "tags": ["dockerfile", "debugging", "best_practices"]
+  },
+  {
+    "question_text": "Identifiez la commande Git manquante dans ce workflow:",
+    "images": {
+      "diagram": "git_workflow_diagram.png",
+      "code": "git_commands_sequence.png"
+    },
+    "options": [
+      "git add .",
+      "git commit -m 'message'",
+      "git push origin main",
+      "git merge feature-branch"
+    ],
+    "correct_answer": "git merge feature-branch",
+    "explanation": "Le workflow montre une feature branch qui doit être fusionnée avec main, la commande manquante est git merge.",
+    "difficulty": 3,
+    "category": "Visual Workflow",
+    "tags": ["git", "workflow", "merge", "branching"]
+  },
+  {
+    "question_text": "Dans cet exemple Docker Compose, quel service démarrera en premier?",
+    "code_image": "docker_compose_dependencies.png",
+    "options": [
+      "web",
+      "database", 
+      "redis",
+      "Ils démarrent simultanément"
+    ],
+    "correct_answer": "database",
+    "explanation": "Grâce à 'depends_on', le service database doit démarrer avant web et redis.",
+    "difficulty": 2,
+    "category": "Compose",
+    "tags": ["docker_compose", "dependencies", "startup_order"]
+  },
+  {
+    "question_text": "Que fait cette configuration de réseau Docker?",
+    "images": {
+      "diagram": "docker_network_diagram.png",
+      "code": "docker_network_config.png"
+    },
+    "options": [
+      "Crée un réseau bridge personnalisé",
+      "Configure un réseau host",
+      "Setup un réseau overlay pour swarm",
+      "Désactive le réseau"
+    ],
+    "correct_answer": "Crée un réseau bridge personnalisé",
+    "explanation": "La configuration montre un réseau bridge personnalisé permettant la communication entre conteneurs.",
+    "difficulty": 3,
+    "category": "Networking",
+    "tags": ["docker", "networking", "bridge", "containers"]
+  }
+]

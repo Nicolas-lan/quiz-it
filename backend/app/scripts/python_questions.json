@@ -1,0 +1,140 @@
+{
+  "technology": "Python",
+  "questions": [
+    {
+      "category": "Basics",
+      "question_text": "Quel est le résultat de: print(type([]))",
+      "options": ["<class 'list'>", "<class 'array'>", "<class 'tuple'>", "<class 'dict'>"],
+      "correct_answer": "<class 'list'>",
+      "explanation": "[] crée une liste vide en Python, et type() retourne la classe 'list'.",
+      "difficulty": 1,
+      "tags": ["type", "list", "basics"]
+    },
+    {
+      "category": "Data Types",
+      "question_text": "Quelle est la différence entre une liste et un tuple?",
+      "options": ["Les listes sont mutables, les tuples sont immutables", "Les tuples sont plus rapides", "Les listes ne peuvent contenir que des nombres", "Il n'y a pas de différence"],
+      "correct_answer": "Les listes sont mutables, les tuples sont immutables",
+      "explanation": "Les listes peuvent être modifiées après création, les tuples ne peuvent pas être modifiés.",
+      "difficulty": 1,
+      "tags": ["list", "tuple", "mutability"]
+    },
+    {
+      "category": "Functions",
+      "question_text": "Que fait cette fonction? lambda x: x**2",
+      "options": ["Calcule le carré de x", "Calcule x puissance x", "Crée une variable nommée lambda", "Génère une erreur"],
+      "correct_answer": "Calcule le carré de x",
+      "explanation": "C'est une fonction lambda qui prend x en paramètre et retourne x au carré (**2).",
+      "difficulty": 1,
+      "tags": ["lambda", "functions", "power"]
+    },
+    {
+      "category": "List Comprehensions",
+      "question_text": "Que produit: [x*2 for x in range(3)]",
+      "options": ["[0, 2, 4]", "[0, 1, 2]", "[2, 4, 6]", "[0, 2, 4, 6]"],
+      "correct_answer": "[0, 2, 4]",
+      "explanation": "range(3) génère [0,1,2], la compréhension multiplie chaque élément par 2.",
+      "difficulty": 1,
+      "tags": ["list_comprehension", "range", "loops"]
+    },
+    {
+      "category": "Dictionaries",
+      "question_text": "Comment accéder à une clé 'name' de manière sécurisée dans un dict?",
+      "options": ["dict.get('name')", "dict['name'] if 'name' in dict else None", "dict.get('name', 'default')", "Toutes les réponses ci-dessus"],
+      "correct_answer": "Toutes les réponses ci-dessus",
+      "explanation": "Ces trois méthodes permettent d'accéder à une clé sans lever d'exception si elle n'existe pas.",
+      "difficulty": 2,
+      "tags": ["dictionaries", "safe_access", "get_method"]
+    },
+    {
+      "category": "OOP",
+      "question_text": "Que fait le décorateur @property?",
+      "options": ["Transforme une méthode en attribut", "Crée une propriété statique", "Rend la méthode privée", "Optimise les performances"],
+      "correct_answer": "Transforme une méthode en attribut",
+      "explanation": "@property permet d'accéder à une méthode comme si c'était un attribut, utile pour les getters.",
+      "difficulty": 2,
+      "tags": ["property", "decorators", "oop", "getters"]
+    },
+    {
+      "category": "Modules",
+      "question_text": "Comment importer seulement la fonction 'sqrt' du module math?",
+      "options": ["from math import sqrt", "import math.sqrt", "import sqrt from math", "import math as sqrt"],
+      "correct_answer": "from math import sqrt",
+      "explanation": "'from module import function' permet d'importer une fonction spécifique.",
+      "difficulty": 1,
+      "tags": ["import", "modules", "from_import"]
+    },
+    {
+      "category": "Exceptions",
+      "question_text": "Quel bloc s'exécute toujours, même en cas d'exception?",
+      "options": ["finally", "except", "else", "try"],
+      "correct_answer": "finally",
+      "explanation": "Le bloc 'finally' s'exécute toujours, qu'il y ait une exception ou non.",
+      "difficulty": 1,
+      "tags": ["exceptions", "finally", "try_except"]
+    },
+    {
+      "category": "Generators",
+      "question_text": "Quelle est la différence entre yield et return?",
+      "options": ["yield pause la fonction, return l'arrête", "yield est plus rapide", "yield ne peut être utilisé que dans les classes", "Il n'y a pas de différence"],
+      "correct_answer": "yield pause la fonction, return l'arrête",
+      "explanation": "yield crée un générateur qui peut être repris, return termine définitivement la fonction.",
+      "difficulty": 3,
+      "tags": ["yield", "generators", "return", "iterators"]
+    },
+    {
+      "category": "Decorators",
+      "question_text": "À quoi sert un décorateur en Python?",
+      "options": ["Modifier le comportement d'une fonction", "Décorer l'affichage", "Créer des commentaires", "Optimiser le code"],
+      "correct_answer": "Modifier le comportement d'une fonction",
+      "explanation": "Un décorateur est une fonction qui modifie ou étend le comportement d'une autre fonction.",
+      "difficulty": 2,
+      "tags": ["decorators", "functions", "wrapper"]
+    },
+    {
+      "category": "File Handling",
+      "question_text": "Pourquoi utiliser 'with open()' au lieu de 'open()'?",
+      "options": ["Ferme automatiquement le fichier", "Plus rapide", "Permet la lecture seule", "Crée le fichier s'il n'existe pas"],
+      "correct_answer": "Ferme automatiquement le fichier",
+      "explanation": "'with' est un gestionnaire de contexte qui ferme automatiquement le fichier, même en cas d'erreur.",
+      "difficulty": 2,
+      "tags": ["context_manager", "file_handling", "with_statement"]
+    },
+    {
+      "category": "Data Structures",
+      "question_text": "Quel est l'avantage principal d'un set par rapport à une list?",
+      "options": ["Pas de doublons et recherche O(1)", "Plus de mémoire", "Peut être modifié", "Supporte l'indexation"],
+      "correct_answer": "Pas de doublons et recherche O(1)",
+      "explanation": "Un set garantit l'unicité des éléments et offre une recherche en temps constant.",
+      "difficulty": 2,
+      "tags": ["set", "data_structures", "complexity", "performance"]
+    },
+    {
+      "category": "Advanced",
+      "question_text": "Que fait *args dans une définition de fonction?",
+      "options": ["Accepte un nombre variable d'arguments positionnels", "Accepte des arguments nommés", "Multiplie les arguments", "Crée une liste d'arguments"],
+      "correct_answer": "Accepte un nombre variable d'arguments positionnels",
+      "explanation": "*args permet à une fonction d'accepter n'importe quel nombre d'arguments positionnels.",
+      "difficulty": 2,
+      "tags": ["args", "variable_arguments", "unpacking"]
+    },
+    {
+      "category": "Libraries",
+      "question_text": "Quelle bibliothèque est standard pour les requêtes HTTP en Python?",
+      "options": ["urllib", "requests", "http", "Les trois sont correctes"],
+      "correct_answer": "urllib",
+      "explanation": "urllib fait partie de la bibliothèque standard. 'requests' est populaire mais externe.",
+      "difficulty": 2,
+      "tags": ["urllib", "http", "standard_library", "requests"]
+    },
+    {
+      "category": "Performance",
+      "question_text": "Quelle méthode est la plus efficace pour concaténer de nombreuses strings?",
+      "options": ["''.join(list_of_strings)", "string1 + string2 + string3", "f'{string1}{string2}{string3}'", "Toutes sont équivalentes"],
+      "correct_answer": "''.join(list_of_strings)",
+      "explanation": "join() est plus efficace pour de nombreuses concaténations car elle évite de créer de multiples objets intermédiaires.",
+      "difficulty": 3,
+      "tags": ["performance", "strings", "join", "concatenation"]
+    }
+  ]
+}

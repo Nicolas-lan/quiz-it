@@ -1,22 +1,48 @@
 import React, { useState } from 'react';
+import { AuthProvider } from './context/AuthContext';
 import HomePage from './components/HomePage';
-import Questionnaire from './components/Questionnaire';
-
-const TECHNOLOGIES = [
-  { value: 'spark', label: 'Apache Spark' },
-  { value: 'docker', label: 'Docker' },
-  { value: 'git', label: 'Git' },
-  // Ajoute d'autres technos ici
-];
+import Quiz from './components/Quiz';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [selectedTech, setSelectedTech] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false);
 
-  if (!selectedTech) {
-    return <HomePage onSelectTech={setSelectedTech} />;
+  const handleBack = () => {
+    setSelectedTech(null);
+    setShowDashboard(false);
+  };
+
+  if (showDashboard) {
+    return (
+      <AuthProvider>
+        <div className="App">
+          <Dashboard onBack={handleBack} />
+        </div>
+      </AuthProvider>
+    );
   }
 
-  return <Questionnaire technology={selectedTech} onBack={() => setSelectedTech(null)} />;
+  if (selectedTech) {
+    return (
+      <AuthProvider>
+        <div className="App">
+          <Quiz selectedTechnology={selectedTech} onBack={handleBack} />
+        </div>
+      </AuthProvider>
+    );
+  }
+
+  return (
+    <AuthProvider>
+      <div className="App">
+        <HomePage 
+          onSelectTech={setSelectedTech} 
+          onShowDashboard={() => setShowDashboard(true)} 
+        />
+      </div>
+    </AuthProvider>
+  );
 }
 
-export default App; 
+export default App;
