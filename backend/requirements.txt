@@ -1,8 +1,24 @@
-# Requirements.txt compatible Python 3.13
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-sqlalchemy==2.0.23
-pydantic==2.5.0
-python-multipart==0.0.6
+# FastAPI et dependencies
+fastapi==0.100.1
+uvicorn[standard]==0.23.2
+
+# Base de données PostgreSQL
+sqlalchemy==1.4.54
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Validation et sérialisation
+pydantic==1.10.22
+pydantic[email]==1.10.22
+
+# Authentification et sécurité
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Redis (pour cache et sessions futures)
+redis==5.0.1
+
+# Utilitaires
+python-dotenv==1.0.0
+email-validator==2.1.0
