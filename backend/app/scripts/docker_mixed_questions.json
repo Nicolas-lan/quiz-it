@@ -1,0 +1,203 @@
+[
+  {
+    "question_text": "Quelle est la différence entre une image Docker et un conteneur?",
+    "options": [
+      "Une image est un modèle, un conteneur est une instance en cours d'exécution",
+      "Une image est plus petite qu'un conteneur",
+      "Une image s'exécute, un conteneur se stocke",
+      "Il n'y a pas de différence"
+    ],
+    "correct_answer": "Une image est un modèle, un conteneur est une instance en cours d'exécution",
+    "explanation": "Une image Docker est un modèle en lecture seule, tandis qu'un conteneur est une instance exécutable de cette image.",
+    "difficulty": 1,
+    "category": "Basics",
+    "tags": ["image", "container", "concept"]
+  },
+  {
+    "question_text": "Quelle commande permet de lister toutes les images Docker locales?",
+    "options": [
+      "docker images",
+      "docker ps -a",
+      "docker list images",
+      "docker show images"
+    ],
+    "correct_answer": "docker images",
+    "explanation": "La commande 'docker images' liste toutes les images Docker présentes localement.",
+    "difficulty": 1,
+    "category": "Images",
+    "tags": ["images", "list", "basic"]
+  },
+  {
+    "question_text": "Que fait cette commande Docker?",
+    "code_image": "docker_run_command.png",
+    "options": [
+      "Lance un conteneur en mode interactif avec un terminal",
+      "Construit une nouvelle image",
+      "Arrête un conteneur existant",
+      "Supprime un conteneur"
+    ],
+    "correct_answer": "Lance un conteneur en mode interactif avec un terminal",
+    "explanation": "La commande 'docker run -it' lance un conteneur en mode interactif (-i) avec un pseudo-terminal (-t).",
+    "difficulty": 2,
+    "category": "Containers",
+    "tags": ["run", "interactive", "terminal"]
+  },
+  {
+    "question_text": "Quel est le rôle de l'instruction FROM dans un Dockerfile?",
+    "options": [
+      "Spécifier l'image de base à utiliser",
+      "Définir le répertoire de travail",
+      "Copier des fichiers dans l'image",
+      "Exposer un port"
+    ],
+    "correct_answer": "Spécifier l'image de base à utiliser",
+    "explanation": "L'instruction FROM définit l'image de base sur laquelle construire la nouvelle image Docker.",
+    "difficulty": 1,
+    "category": "Dockerfile",
+    "tags": ["dockerfile", "from", "base_image"]
+  },
+  {
+    "question_text": "Complétez ce Dockerfile pour exposer le port 3000:",
+    "code_image": "dockerfile_expose_blank.png",
+    "options": [
+      "EXPOSE 3000",
+      "PORT 3000",
+      "LISTEN 3000",
+      "OPEN 3000"
+    ],
+    "correct_answer": "EXPOSE 3000",
+    "explanation": "L'instruction EXPOSE indique que le conteneur écoute sur le port spécifié au runtime.",
+    "difficulty": 2,
+    "category": "Dockerfile",
+    "tags": ["dockerfile", "expose", "port"]
+  },
+  {
+    "question_text": "Que fait la commande 'docker build -t monapp .'?",
+    "options": [
+      "Construit une image avec le tag 'monapp' depuis le répertoire courant",
+      "Lance un conteneur nommé 'monapp'",
+      "Télécharge l'image 'monapp' depuis Docker Hub",
+      "Supprime l'image 'monapp'"
+    ],
+    "correct_answer": "Construit une image avec le tag 'monapp' depuis le répertoire courant",
+    "explanation": "La commande build avec -t assigne un tag, et le '.' indique d'utiliser le Dockerfile du répertoire courant.",
+    "difficulty": 2,
+    "category": "Images",
+    "tags": ["build", "tag", "dockerfile"]
+  },
+  {
+    "question_text": "Analysez cette architecture Docker. Quel composant manque?",
+    "diagram_image": "docker_architecture_incomplete.png",
+    "options": [
+      "Docker Registry",
+      "Docker Daemon",
+      "Docker Client",
+      "Container Runtime"
+    ],
+    "correct_answer": "Docker Registry",
+    "explanation": "L'architecture montre le client et le daemon, mais il manque le registry qui stocke les images.",
+    "difficulty": 3,
+    "category": "Architecture",
+    "tags": ["architecture", "registry", "daemon"]
+  },
+  {
+    "question_text": "Quelle est la différence entre CMD et ENTRYPOINT dans un Dockerfile?",
+    "options": [
+      "ENTRYPOINT ne peut pas être surchargé au runtime, CMD peut l'être",
+      "CMD s'exécute pendant le build, ENTRYPOINT au runtime",
+      "ENTRYPOINT est pour les scripts, CMD pour les commandes",
+      "Il n'y a pas de différence"
+    ],
+    "correct_answer": "ENTRYPOINT ne peut pas être surchargé au runtime, CMD peut l'être",
+    "explanation": "ENTRYPOINT définit la commande fixe du conteneur, tandis que CMD peut être surchargée lors du docker run.",
+    "difficulty": 3,
+    "category": "Dockerfile",
+    "tags": ["cmd", "entrypoint", "dockerfile"]
+  },
+  {
+    "question_text": "Que fait Docker Compose?",
+    "options": [
+      "Orchestre des applications multi-conteneurs",
+      "Compile les images Docker plus rapidement",
+      "Compresse les images Docker",
+      "Compose de la musique avec Docker"
+    ],
+    "correct_answer": "Orchestre des applications multi-conteneurs",
+    "explanation": "Docker Compose permet de définir et gérer des applications composées de plusieurs conteneurs.",
+    "difficulty": 2,
+    "category": "Compose",
+    "tags": ["compose", "multi_container", "orchestration"]
+  },
+  {
+    "question_text": "Dans ce fichier docker-compose.yml, quel service démarre en premier?",
+    "code_image": "docker_compose_depends_on.png",
+    "options": [
+      "database",
+      "web",
+      "redis", 
+      "Ils démarrent en parallèle"
+    ],
+    "correct_answer": "database",
+    "explanation": "Grâce à 'depends_on', Docker Compose démarre d'abord les dépendances (database) avant les services qui en dépendent.",
+    "difficulty": 2,
+    "category": "Compose",
+    "tags": ["compose", "depends_on", "startup_order"]
+  },
+  {
+    "question_text": "Comment monter un volume pour persister des données?",
+    "options": [
+      "docker run -v /host/path:/container/path image",
+      "docker run --mount /host/path:/container/path image",
+      "docker run --volume /host/path=/container/path image",
+      "docker run --persist /host/path:/container/path image"
+    ],
+    "correct_answer": "docker run -v /host/path:/container/path image",
+    "explanation": "L'option -v (ou --volume) permet de monter un répertoire hôte dans le conteneur pour persister les données.",
+    "difficulty": 2,
+    "category": "Volumes",
+    "tags": ["volume", "mount", "persistence"]
+  },
+  {
+    "question_text": "Que montre cette interface Docker Desktop?",
+    "screenshot_image": "docker_desktop_containers.png",
+    "options": [
+      "La liste des conteneurs en cours d'exécution",
+      "Les images disponibles localement",
+      "Les logs d'un conteneur spécifique",
+      "La configuration réseau"
+    ],
+    "correct_answer": "La liste des conteneurs en cours d'exécution",
+    "explanation": "L'interface Docker Desktop montre l'onglet Containers avec la liste des conteneurs et leur statut.",
+    "difficulty": 1,
+    "category": "Containers",
+    "tags": ["docker_desktop", "containers", "gui"]
+  },
+  {
+    "question_text": "Comment limiter la mémoire d'un conteneur à 512MB?",
+    "options": [
+      "docker run -m 512m image",
+      "docker run --memory 512MB image",
+      "docker run --mem-limit 512m image",
+      "Les réponses A et B sont correctes"
+    ],
+    "correct_answer": "Les réponses A et B sont correctes",
+    "explanation": "Soit -m soit --memory permettent de limiter la mémoire, avec des unités comme 512m ou 512MB.",
+    "difficulty": 3,
+    "category": "Production",
+    "tags": ["memory", "limits", "resources"]
+  },
+  {
+    "question_text": "Quelle est la meilleure pratique pour les secrets dans Docker?",
+    "options": [
+      "Utiliser Docker Secrets ou des variables d'environnement chiffrées",
+      "Les inclure directement dans le Dockerfile",
+      "Les passer en arguments de build",
+      "Les mettre dans l'image"
+    ],
+    "correct_answer": "Utiliser Docker Secrets ou des variables d'environnement chiffrées",
+    "explanation": "Les secrets ne doivent jamais être inclus dans les images. Il faut utiliser Docker Secrets ou des solutions externes.",
+    "difficulty": 4,
+    "category": "Production",
+    "tags": ["secrets", "security", "best_practices"]
+  }
+]

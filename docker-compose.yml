@@ -32,22 +32,18 @@ services:
       retries: 5
 
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: quiz-backend
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=quiz_user
-      - POSTGRES_PASSWORD=quiz_password_2024
       - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=quiz_db
-      - SECRET_KEY=your-super-secret-jwt-key-change-in-production-256-bits
-      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
-      - LOG_LEVEL=INFO
-      - ENVIRONMENT=production
     volumes:
-      - ./backend/app:/app/app:ro
+      - ./backend/app:/app/app
       - ./backend/logs:/app/logs
     depends_on:
       postgres:
@@ -60,7 +56,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
   frontend:
     build: ./frontend

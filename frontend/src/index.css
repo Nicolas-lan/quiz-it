@@ -10,6 +10,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f0f2f5;
+  line-height: 1.6;
 }
 
 .App {
@@ -24,4 +25,42 @@ button {
 
 button:hover {
   transform: translateY(-2px);
+}
+
+/* Fix pour éviter le chevauchement de texte */
+.tech-card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 4rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.tech-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tech-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.tech-name {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #374151;
+  flex: 1;
+  text-align: left;
 } 

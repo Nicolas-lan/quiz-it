@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 // Icônes SVG simples intégrées
 const Icons = {
@@ -34,8 +34,32 @@ const Icons = {
 const HomePage = ({ onSelectTech }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [technologies, setTechnologies] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const technologies = {
+  // Récupérer les technologies depuis l'API
+  useEffect(() => {
+    const fetchTechnologies = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/technologies`);
+        if (response.ok) {
+          const data = await response.json();
+          setTechnologies(data);
+        } else {
+          console.error('Failed to fetch technologies');
+        }
+      } catch (error) {
+        console.error('Error fetching technologies:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTechnologies();
+  }, []);
+
+  // Technologies statiques comme fallback
+  const staticTechnologies = {
     frontend: [
       { name: 'React', icon: 'react', color: '#61DAFB' },
       { name: 'Angular', icon: 'angular', color: '#DD0031' },
@@ -75,20 +99,31 @@ const HomePage = ({ onSelectTech }) => {
   const filteredTechnologies = useMemo(() => {
     let techs = [];
     
-    // Rassembler toutes les technologies selon la catégorie active
-    if (activeCategory === 'all') {
-      Object.values(technologies).forEach(categoryTechs => {
-        techs = [...techs, ...categoryTechs];
-      });
+    // Utiliser les technologies de l'API si disponibles, sinon les statiques
+    if (technologies.length > 0) {
+      // Technologies depuis l'API
+      techs = technologies.map(tech => ({
+        name: tech.display_name || tech.name,
+        originalName: tech.name,
+        icon: tech.icon || '💻',
+        color: tech.color || '#007bff'
+      }));
     } else {
-      techs = technologies[activeCategory] || [];
+      // Technologies statiques
+      if (activeCategory === 'all') {
+        Object.values(staticTechnologies).forEach(categoryTechs => {
+          techs = [...techs, ...categoryTechs];
+        });
+      } else {
+        techs = staticTechnologies[activeCategory] || [];
+      }
     }
 
     // Filtrer selon le terme de recherche
     return techs.filter(tech => 
       tech.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm, activeCategory]);
+  }, [searchTerm, activeCategory, technologies]);
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -125,25 +160,24 @@ const HomePage = ({ onSelectTech }) => {
       </div>
 
       {/* Grille des technologies */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filteredTechnologies.map(tech => (
-          <button
-            key={tech.name}
-            onClick={() => onSelectTech(tech.name)}
-            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-center gap-3"
-          >
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: tech.color + '20' }}
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-2 text-gray-500">Chargement des technologies...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredTechnologies.map(tech => (
+            <button
+              key={tech.originalName || tech.name}
+              onClick={() => onSelectTech(tech.originalName || tech.name)}
+              className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
             >
-              <span className="text-2xl" style={{ color: tech.color }}>
-                {tech.icon.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <span className="font-medium">{tech.name}</span>
-          </button>
-        ))}
-      </div>
+              <span className="font-medium text-gray-800">{tech.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Message si aucun résultat */}
       {filteredTechnologies.length === 0 && (

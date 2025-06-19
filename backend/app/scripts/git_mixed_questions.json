@@ -1,0 +1,175 @@
+[
+  {
+    "question_text": "Quelle commande Git permet d'initialiser un nouveau dépôt?",
+    "options": [
+      "git init",
+      "git start", 
+      "git create",
+      "git new"
+    ],
+    "correct_answer": "git init",
+    "explanation": "La commande 'git init' initialise un nouveau dépôt Git dans le répertoire courant.",
+    "difficulty": 1,
+    "category": "Basics",
+    "tags": ["init", "repository", "basic"]
+  },
+  {
+    "question_text": "Que fait la commande 'git add .'?",
+    "options": [
+      "Ajoute tous les fichiers modifiés à l'index",
+      "Ajoute un seul fichier à l'index",
+      "Supprime tous les fichiers",
+      "Crée un nouveau commit"
+    ],
+    "correct_answer": "Ajoute tous les fichiers modifiés à l'index",
+    "explanation": "La commande 'git add .' ajoute tous les fichiers modifiés du répertoire courant à l'index (staging area).",
+    "difficulty": 1,
+    "category": "Basics",
+    "tags": ["add", "staging", "index"]
+  },
+  {
+    "question_text": "Quelle est la séquence de commandes correcte pour ce workflow Git?",
+    "diagram_image": "git_workflow_basic.png",
+    "options": [
+      "git add → git commit → git push",
+      "git commit → git add → git push",
+      "git push → git add → git commit",
+      "git add → git push → git commit"
+    ],
+    "correct_answer": "git add → git commit → git push",
+    "explanation": "Le workflow standard Git est : 1) Ajouter les changements (add), 2) Créer un commit, 3) Pousser vers le remote.",
+    "difficulty": 2,
+    "category": "Visual Workflow",
+    "tags": ["workflow", "add", "commit", "push"]
+  },
+  {
+    "question_text": "Comment créer une nouvelle branche et basculer dessus en une seule commande?",
+    "options": [
+      "git checkout -b nouvelle-branche",
+      "git branch nouvelle-branche && git checkout nouvelle-branche",
+      "git switch -c nouvelle-branche",
+      "Les réponses A et C sont correctes"
+    ],
+    "correct_answer": "Les réponses A et C sont correctes",
+    "explanation": "Soit 'git checkout -b' soit 'git switch -c' permettent de créer et basculer sur une nouvelle branche.",
+    "difficulty": 2,
+    "category": "Branching",
+    "tags": ["branch", "checkout", "switch"]
+  },
+  {
+    "question_text": "Complétez cette commande pour fusionner la branche feature dans main:",
+    "code_image": "git_merge_command.png",
+    "options": [
+      "git merge feature",
+      "git merge main feature",
+      "git merge --into feature",
+      "git merge feature main"
+    ],
+    "correct_answer": "git merge feature",
+    "explanation": "Depuis la branche main, 'git merge feature' fusionne la branche feature dans main.",
+    "difficulty": 2,
+    "category": "Merging",
+    "tags": ["merge", "branch", "code_completion"]
+  },
+  {
+    "question_text": "Que signifie un 'fast-forward' merge dans Git?",
+    "options": [
+      "La branche cible n'a pas de nouveaux commits depuis la création de la branche source",
+      "Le merge se fait très rapidement",
+      "Git utilise un algorithme optimisé",
+      "C'est un type de merge automatique"
+    ],
+    "correct_answer": "La branche cible n'a pas de nouveaux commits depuis la création de la branche source",
+    "explanation": "Un fast-forward merge signifie que la branche principale n'a pas évolué, Git peut simplement avancer le pointeur.",
+    "difficulty": 3,
+    "category": "Merging",
+    "tags": ["fast_forward", "merge", "branch"]
+  },
+  {
+    "question_text": "Analysez ce conflit Git. Quelle est la bonne résolution?",
+    "code_image": "git_conflict_example.png",
+    "options": [
+      "Garder la version HEAD et supprimer les marqueurs",
+      "Garder la version incoming et supprimer les marqueurs",
+      "Combiner les deux versions et supprimer les marqueurs",
+      "Annuler le merge complètement"
+    ],
+    "correct_answer": "Combiner les deux versions et supprimer les marqueurs",
+    "explanation": "Pour résoudre un conflit, il faut combiner ou choisir les bonnes parties, puis supprimer les marqueurs de conflit.",
+    "difficulty": 3,
+    "category": "Merging",
+    "tags": ["conflict", "resolution", "merge"]
+  },
+  {
+    "question_text": "Quelle commande permet de voir l'historique des commits de façon graphique?",
+    "options": [
+      "git log --graph",
+      "git show --graph",
+      "git history --visual",
+      "git tree"
+    ],
+    "correct_answer": "git log --graph",
+    "explanation": "La commande 'git log --graph' affiche l'historique des commits sous forme de graphique ASCII.",
+    "difficulty": 2,
+    "category": "Advanced",
+    "tags": ["log", "graph", "history"]
+  },
+  {
+    "question_text": "Que fait 'git rebase' par rapport à 'git merge'?",
+    "options": [
+      "Rebase réécrit l'historique, merge le préserve",
+      "Rebase est plus rapide que merge",
+      "Rebase crée des conflits, merge non",
+      "Il n'y a pas de différence"
+    ],
+    "correct_answer": "Rebase réécrit l'historique, merge le préserve",
+    "explanation": "Rebase déplace les commits pour créer un historique linéaire, tandis que merge préserve l'historique des branches.",
+    "difficulty": 4,
+    "category": "Advanced",
+    "tags": ["rebase", "merge", "history"]
+  },
+  {
+    "question_text": "Dans cette interface GitHub, que représentent les différentes couleurs?",
+    "screenshot_image": "github_pull_request.png",
+    "options": [
+      "Vert = ajouts, Rouge = suppressions, Bleu = modifications",
+      "Vert = ajouts, Rouge = suppressions",
+      "Les couleurs n'ont pas de signification",
+      "Vert = validé, Rouge = en attente"
+    ],
+    "correct_answer": "Vert = ajouts, Rouge = suppressions",
+    "explanation": "Dans GitHub, le vert indique les lignes ajoutées et le rouge les lignes supprimées dans un diff.",
+    "difficulty": 1,
+    "category": "Remote",
+    "tags": ["github", "diff", "pull_request"]
+  },
+  {
+    "question_text": "Comment annuler le dernier commit sans perdre les changements?",
+    "options": [
+      "git reset --soft HEAD~1",
+      "git reset --hard HEAD~1",
+      "git revert HEAD",
+      "git checkout HEAD~1"
+    ],
+    "correct_answer": "git reset --soft HEAD~1",
+    "explanation": "git reset --soft HEAD~1 annule le commit mais garde les changements dans l'index.",
+    "difficulty": 3,
+    "category": "Troubleshooting",
+    "tags": ["reset", "undo", "commit"]
+  },
+  {
+    "question_text": "Que montre cette sortie de 'git status'?",
+    "code_image": "git_status_output.png",
+    "options": [
+      "Des fichiers modifiés et non trackés",
+      "Tous les fichiers sont commités", 
+      "Il y a des conflits à résoudre",
+      "La branche est en avance sur origin"
+    ],
+    "correct_answer": "Des fichiers modifiés et non trackés",
+    "explanation": "La sortie git status montre des fichiers modifiés (en rouge) et des fichiers non trackés.",
+    "difficulty": 2,
+    "category": "Basics",
+    "tags": ["status", "tracking", "modified"]
+  }
+]

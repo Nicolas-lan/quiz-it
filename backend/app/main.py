@@ -2,72 +2,79 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 from . import models, schemas
-from .database import get_db, engine, SessionLocal
-from .initial_data import init_db
+from .core.db import get_db, SessionLocal, engine
+from .core.init_data import init_database
+from .core.auth import get_current_active_user, get_optional_current_user
+from .api.endpoints import auth
+from .models.database_models import User, Technology, Question
 from sqlalchemy.sql import func
 
-# Configuration simple du logging
+# Configuration du logging
 def setup_simple_logging():
-    """Configuration basique du logging"""
-    # Créer le dossier logs
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
-    
-    # Nom du fichier de log avec date
     log_file = log_dir / f"quiz_app_{datetime.now().strftime('%Y%m%d')}.log"
     
-    # Configuration du logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
         handlers=[
             logging.FileHandler(log_file, encoding='utf-8'),
-            logging.StreamHandler()  # Console
+            logging.StreamHandler()
         ]
     )
     
-    # Réduire les logs des librairies tierces
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
-# Initialiser le logging
 setup_simple_logging()
 logger = logging.getLogger("quiz_app")
 
-models.Base.metadata.create_all(bind=engine)
+# Créer les tables si elles n'existent pas
+from .core.db import Base
+Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Spark Quiz API")
+app = FastAPI(
+    title="Quiz IT API",
+    description="API pour quiz multi-technologies avec authentification",
+    version="2.0.0"
+)
 
-# Ajout du middleware CORS
+# Middleware CORS - Plus permissif pour le développement
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Autorise toutes les origines (en dev)
+    allow_origins=["*"],  # Temporairement permissif pour le debug
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.on_event("startup")
-def on_startup():
-    """Initialisation au démarrage avec logging"""
-    logger.info("🚀 Démarrage de l'application Spark Quiz API")
+def startup_event():
+    """Initialisation au démarrage"""
+    logger.info("🚀 Démarrage de Quiz IT API v2.0")
     
     try:
         db = SessionLocal()
-        question_count = db.query(models.SparkQuestion).count()
         
-        if question_count == 0:
-            logger.info("Initialisation de la base de données avec les questions par défaut")
-            init_db(db)
-            new_count = db.query(models.SparkQuestion).count()
-            logger.info(f"✅ {new_count} questions ajoutées à la base de données")
+        # Vérifier si la base est initialisée
+        user_count = db.query(User).count()
+        
+        if user_count == 0:
+            logger.info("🔧 Initialisation de la base de données...")
+            init_database(db)
         else:
-            logger.info(f"✅ Base de données déjà initialisée avec {question_count} questions")
+            tech_count = db.query(Technology).count()
+            question_count = db.query(Question).count()
+            logger.info(f"✅ Base de données déjà initialisée:")
+            logger.info(f"   - {user_count} utilisateurs")
+            logger.info(f"   - {tech_count} technologies")
+            logger.info(f"   - {question_count} questions")
         
         db.close()
         logger.info("✅ Application démarrée avec succès")
@@ -76,117 +83,22 @@ def on_startup():
         logger.error(f"❌ Erreur lors de l'initialisation: {e}", exc_info=True)
         raise
 
-@app.get("/questions/", response_model=List[schemas.SparkQuestion])
-def get_questions(
-    technology: str = None,
-    category: str = None,
-    difficulty: int = None,
-    db: Session = Depends(get_db)
-):
-    """Récupère les questions avec logging"""
-    logger.info(f"Récupération des questions - tech: {technology}, cat: {category}, diff: {difficulty}")
-    
-    try:
-        query = db.query(models.SparkQuestion)
-        if technology:
-            query = query.filter(models.SparkQuestion.technology == technology)
-        if category:
-            query = query.filter(models.SparkQuestion.category == category)
-        if difficulty:
-            query = query.filter(models.SparkQuestion.difficulty == difficulty)
-        
-        questions = query.all()
-        logger.info(f"✅ {len(questions)} questions récupérées")
-        return questions
-        
-    except Exception as e:
-        logger.error(f"❌ Erreur lors de la récupération des questions: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Erreur serveur")
+# Inclusion des routes d'authentification
+app.include_router(auth.router, prefix="/auth", tags=["authentification"])
 
-@app.get("/questions/{question_id}", response_model=schemas.SparkQuestion)
-def get_question(question_id: int, db: Session = Depends(get_db)):
-    """Récupère une question spécifique avec logging"""
-    logger.info(f"Récupération de la question {question_id}")
-    
-    try:
-        question = db.query(models.SparkQuestion).filter(models.SparkQuestion.id == question_id).first()
-        if question is None:
-            logger.warning(f"❌ Question {question_id} non trouvée")
-            raise HTTPException(status_code=404, detail="Question not found")
-        
-        logger.info(f"✅ Question {question_id} récupérée ({question.technology})")
-        return question
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ Erreur lors de la récupération de la question {question_id}: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Erreur serveur")
-
-@app.post("/questions/", response_model=schemas.SparkQuestion)
-def create_question(question: schemas.SparkQuestionCreate, db: Session = Depends(get_db)):
-    """Crée une nouvelle question avec logging"""
-    logger.info(f"Création d'une nouvelle question - tech: {question.technology}")
-    
-    try:
-        # Correction pour compatibilité Pydantic v2
-        question_data = question.model_dump() if hasattr(question, 'model_dump') else question.dict()
-        db_question = models.SparkQuestion(**question_data)
-        db.add(db_question)
-        db.commit()
-        db.refresh(db_question)
-        
-        logger.info(f"✅ Question créée avec l'ID {db_question.id}")
-        return db_question
-        
-    except Exception as e:
-        logger.error(f"❌ Erreur lors de la création de la question: {e}", exc_info=True)
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Erreur lors de la création")
-
-# Route pour obtenir une question aléatoire
-@app.get("/questions/random/", response_model=schemas.SparkQuestion)
-def get_random_question(
-    technology: str = None,
-    category: str = None,
-    difficulty: int = None,
-    db: Session = Depends(get_db)
-):
-    """Récupère une question aléatoire avec logging"""
-    logger.info(f"Récupération question aléatoire - tech: {technology}, cat: {category}, diff: {difficulty}")
-    
-    try:
-        query = db.query(models.SparkQuestion)
-        if technology:
-            query = query.filter(models.SparkQuestion.technology == technology)
-        if category:
-            query = query.filter(models.SparkQuestion.category == category)
-        if difficulty:
-            query = query.filter(models.SparkQuestion.difficulty == difficulty)
-        
-        question = query.order_by(func.random()).first()
-        
-        if question is None:
-            logger.warning("❌ Aucune question aléatoire trouvée avec ces critères")
-            raise HTTPException(status_code=404, detail="Aucune question trouvée")
-        
-        logger.info(f"✅ Question aléatoire récupérée: ID {question.id} ({question.technology})")
-        return question
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"❌ Erreur lors de la récupération d'une question aléatoire: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Erreur serveur")
-
-# Routes supplémentaires avec logging
 @app.get("/")
 def read_root():
     """Page d'accueil de l'API"""
     logger.info("Accès à la page d'accueil de l'API")
     return {
-        "message": "Spark Quiz API", 
-        "version": "1.0.0",
+        "message": "Quiz IT API v2.0",
+        "version": "2.0.0",
+        "features": [
+            "Authentification JWT",
+            "Base PostgreSQL",
+            "Quiz multi-technologies",
+            "Gestion des utilisateurs"
+        ],
         "docs": "/docs",
         "status": "running"
     }
@@ -194,69 +106,283 @@ def read_root():
 @app.get("/health")
 def health_check():
     """Vérification de l'état de l'application"""
-    logger.debug("Health check demandé")
-    return {"status": "healthy"}
+    return {"status": "healthy", "version": "2.0.0"}
+
+@app.get("/test")
+def test_endpoint():
+    """Endpoint de test simple"""
+    return {"message": "Test endpoint working", "status": "ok"}
+
+@app.get("/technologies-debug")
+def get_technologies_debug(db: Session = Depends(get_db)):
+    """Debug des technologies sans schéma Pydantic"""
+    try:
+        from .models.database_models import Technology
+        technologies = db.query(Technology).filter(Technology.is_active == True).all()
+        
+        result = []
+        for tech in technologies:
+            result.append({
+                "id": tech.id,
+                "name": tech.name,
+                "display_name": tech.display_name,
+                "description": tech.description,
+                "icon": tech.icon,
+                "color": tech.color,
+                "is_active": tech.is_active,
+                "created_at": str(tech.created_at)
+            })
+        
+        return {"technologies": result, "count": len(result)}
+    except Exception as e:
+        return {"error": str(e), "type": str(type(e))}
+
+# === ROUTES TECHNOLOGIES ===
+
+@app.get("/technologies")
+def get_technologies(db: Session = Depends(get_db)):
+    """Récupérer toutes les technologies"""
+    logger.info("Récupération des technologies")
+    
+    try:
+        from .models.database_models import Technology
+        technologies = db.query(Technology).filter(Technology.is_active == True).all()
+        
+        # Sérialisation manuelle pour éviter les problèmes Pydantic
+        result = []
+        for tech in technologies:
+            result.append({
+                "id": tech.id,
+                "name": tech.name,
+                "display_name": tech.display_name,
+                "description": tech.description,
+                "icon": tech.icon,
+                "color": tech.color,
+                "is_active": tech.is_active
+            })
+        
+        logger.info(f"✅ {len(result)} technologies récupérées")
+        return result
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de la récupération des technologies: {e}", exc_info=True)
+        return {"error": str(e)}
+
+@app.get("/technologies/{tech_name}/categories", response_model=List[schemas.Category])
+def get_technology_categories(tech_name: str, db: Session = Depends(get_db)):
+    """Récupérer les catégories d'une technologie"""
+    logger.info(f"Récupération des catégories pour: {tech_name}")
+    
+    from .models.database_models import Technology, Category
+    
+    tech = db.query(Technology).filter(Technology.name == tech_name).first()
+    if not tech:
+        raise HTTPException(status_code=404, detail="Technologie non trouvée")
+    
+    categories = db.query(Category).filter(Category.technology_id == tech.id).all()
+    return categories
+
+# === ROUTES QUESTIONS ===
+
+@app.get("/questions")
+def get_questions(
+    technology: str = None,
+    category: str = None,
+    difficulty: int = None,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    """Récupérer les questions (sans les bonnes réponses)"""
+    logger.info(f"Récupération des questions - tech: {technology}, cat: {category}, diff: {difficulty}")
+    
+    from .models.database_models import Question, Technology, Category
+    
+    try:
+        query = db.query(Question).filter(Question.is_active == True)
+        
+        if technology:
+            tech = db.query(Technology).filter(Technology.name == technology).first()
+            if tech:
+                query = query.filter(Question.technology_id == tech.id)
+        
+        if category:
+            cat = db.query(Category).filter(Category.name == category).first()
+            if cat:
+                query = query.filter(Question.category_id == cat.id)
+        
+        if difficulty:
+            query = query.filter(Question.difficulty == difficulty)
+        
+        questions = query.limit(limit).all()
+        
+        # Sérialisation manuelle pour éviter les problèmes Pydantic
+        result = []
+        for q in questions:
+            import json
+            result.append({
+                "id": q.id,
+                "technology_id": q.technology_id,
+                "category_id": q.category_id,
+                "question_text": q.question_text,
+                "options": json.loads(q.options) if isinstance(q.options, str) else q.options,
+                "difficulty": q.difficulty,
+                "images": q.images,
+                "tags": json.loads(q.tags) if isinstance(q.tags, str) else q.tags,
+                "technology": q.technology.name if q.technology else None,
+                "category": q.category.name if q.category else None
+            })
+        
+        logger.info(f"✅ {len(result)} questions récupérées")
+        return result
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de la récupération des questions: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Erreur serveur")
+
+@app.get("/questions/random")
+def get_random_question(
+    technology: str = None,
+    category: str = None,
+    difficulty: int = None,
+    db: Session = Depends(get_db)
+):
+    """Récupérer une question aléatoire"""
+    logger.info(f"Récupération question aléatoire - tech: {technology}")
+    
+    from .models.database_models import Question, Technology, Category
+    
+    try:
+        query = db.query(Question).filter(Question.is_active == True)
+        
+        if technology:
+            tech = db.query(Technology).filter(Technology.name == technology).first()
+            if tech:
+                query = query.filter(Question.technology_id == tech.id)
+        
+        if category:
+            cat = db.query(Category).filter(Category.name == category).first()
+            if cat:
+                query = query.filter(Question.category_id == cat.id)
+        
+        if difficulty:
+            query = query.filter(Question.difficulty == difficulty)
+        
+        question = query.order_by(func.random()).first()
+        
+        if question is None:
+            logger.warning("❌ Aucune question aléatoire trouvée")
+            raise HTTPException(status_code=404, detail="Aucune question trouvée")
+        
+        logger.info(f"✅ Question aléatoire récupérée: ID {question.id}")
+        
+        # Sérialisation manuelle pour éviter les problèmes Pydantic
+        import json
+        return {
+            "id": question.id,
+            "technology_id": question.technology_id,
+            "category_id": question.category_id,
+            "question_text": question.question_text,
+            "options": json.loads(question.options) if isinstance(question.options, str) else question.options,
+            "difficulty": question.difficulty,
+            "images": question.images,
+            "tags": json.loads(question.tags) if isinstance(question.tags, str) else question.tags,
+            "technology": question.technology.name if question.technology else None,
+            "category": question.category.name if question.category else None
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Erreur lors de la récupération d'une question aléatoire: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Erreur serveur")
+
+# === ROUTES QUIZ SESSIONS (authentification requise) ===
+
+@app.post("/quiz/start", response_model=schemas.QuizSession)
+def start_quiz(
+    quiz_data: schemas.QuizSessionCreate,
+    current_user: models.database_models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Démarrer une nouvelle session de quiz"""
+    logger.info(f"Début de quiz pour {current_user.username}")
+    
+    from .models.database_models import QuizSession, Technology
+    
+    # Vérifier que la technologie existe
+    tech = db.query(Technology).filter(Technology.id == quiz_data.technology_id).first()
+    if not tech:
+        raise HTTPException(status_code=404, detail="Technologie non trouvée")
+    
+    # Créer la session
+    session = models.database_models.QuizSession(
+        user_id=current_user.id,
+        technology_id=quiz_data.technology_id,
+        status="in_progress"
+    )
+    
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    
+    logger.info(f"✅ Session de quiz créée: {session.id}")
+    return session
+
+@app.get("/quiz/sessions", response_model=List[schemas.QuizSession])
+def get_user_quiz_sessions(
+    current_user: models.database_models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Récupérer les sessions de quiz de l'utilisateur"""
+    sessions = db.query(models.database_models.QuizSession).filter(
+        models.database_models.QuizSession.user_id == current_user.id
+    ).order_by(models.database_models.QuizSession.started_at.desc()).all()
+    
+    return sessions
+
+# === ROUTES STATISTIQUES ===
 
 @app.get("/stats")
 def get_stats(db: Session = Depends(get_db)):
-    """Statistiques de l'application"""
+    """Statistiques générales de l'application"""
     logger.info("Récupération des statistiques")
     
     try:
-        total_questions = db.query(models.SparkQuestion).count()
-        technologies = db.query(models.SparkQuestion.technology).distinct().all()
-        tech_count = {tech[0]: db.query(models.SparkQuestion).filter(models.SparkQuestion.technology == tech[0]).count() 
-                     for tech in technologies}
+        from .models.database_models import User, Technology, Question, QuizSession
+        
+        total_users = db.query(User).count()
+        total_technologies = db.query(Technology).filter(Technology.is_active == True).count()
+        total_questions = db.query(Question).filter(Question.is_active == True).count()
+        total_sessions = db.query(QuizSession).count()
+        
+        # Questions par technologie
+        tech_stats = db.query(
+            Technology.name,
+            Technology.display_name,
+            func.count(Question.id).label('question_count')
+        ).join(Question).filter(
+            Technology.is_active == True,
+            Question.is_active == True
+        ).group_by(Technology.id, Technology.name, Technology.display_name).all()
         
         stats = {
+            "total_users": total_users,
+            "total_technologies": total_technologies,
             "total_questions": total_questions,
-            "technologies": list(tech_count.keys()),
-            "questions_by_technology": tech_count
+            "total_quiz_sessions": total_sessions,
+            "questions_by_technology": [
+                {
+                    "technology": tech.name,
+                    "display_name": tech.display_name,
+                    "question_count": tech.question_count
+                }
+                for tech in tech_stats
+            ]
         }
         
-        logger.info(f"✅ Statistiques calculées: {total_questions} questions total")
+        logger.info(f"✅ Statistiques calculées")
         return stats
         
     except Exception as e:
         logger.error(f"❌ Erreur lors du calcul des statistiques: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Erreur serveur")
-
-# Routes utiles pour le développement et la production
-@app.get("/technologies")
-def get_technologies(db: Session = Depends(get_db)):
-    """Récupère la liste des technologies disponibles"""
-    logger.info("Récupération de la liste des technologies")
-    
-    try:
-        technologies = db.query(models.SparkQuestion.technology).distinct().all()
-        tech_list = [tech[0] for tech in technologies]
-        
-        logger.info(f"✅ {len(tech_list)} technologies trouvées: {tech_list}")
-        return {"technologies": tech_list}
-        
-    except Exception as e:
-        logger.error(f"❌ Erreur lors de la récupération des technologies: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Erreur serveur")
-
-@app.get("/categories")
-def get_categories(
-    technology: str = None,
-    db: Session = Depends(get_db)
-):
-    """Récupère la liste des catégories disponibles"""
-    logger.info(f"Récupération des catégories pour la technologie: {technology}")
-    
-    try:
-        query = db.query(models.SparkQuestion.category).distinct()
-        if technology:
-            query = query.filter(models.SparkQuestion.technology == technology)
-        
-        categories = query.all()
-        cat_list = [cat[0] for cat in categories]
-        
-        logger.info(f"✅ {len(cat_list)} catégories trouvées")
-        return {"categories": cat_list}
-        
-    except Exception as e:
-        logger.error(f"❌ Erreur lors de la récupération des catégories: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Erreur serveur")
