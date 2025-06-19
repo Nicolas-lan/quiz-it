@@ -237,8 +237,52 @@ class QuestionPublic(BaseModel):
     class Config:
         from_attributes = True
 
+# ============================================================================
+# Dashboard Schemas
+# ============================================================================
+
+class QuizSessionSummary(BaseModel):
+    """Résumé d'une session de quiz pour l'historique"""
+    id: int
+    technology_name: str
+    score_percentage: int
+    total_questions: int
+    correct_answers: int
+    started_at: datetime
+    completed_at: Optional[datetime] = None
+    time_spent_seconds: int
+    
+    class Config:
+        from_attributes = True
+
+class UserStatistics(BaseModel):
+    """Statistiques détaillées d'un utilisateur"""
+    total_quizzes: int
+    average_score: float
+    best_score: int
+    total_time_spent: int  # en secondes
+    quizzes_by_technology: dict  # {"technology_name": count}
+    scores_by_technology: dict   # {"technology_name": average_score}
+    recent_activity: List[QuizSessionSummary]
+    
+class ProgressData(BaseModel):
+    """Données pour les graphiques de progression"""
+    dates: List[str]  # dates au format YYYY-MM-DD
+    scores: List[float]  # scores moyens par date
+    quiz_counts: List[int]  # nombre de quiz par date
+    
+class UserDashboard(BaseModel):
+    """Dashboard complet de l'utilisateur"""
+    user: User
+    statistics: UserStatistics
+    progress_data: ProgressData
+    quiz_history: List[QuizSessionSummary]
+    
+    class Config:
+        from_attributes = True
+
 class DashboardStats(BaseModel):
-    """Schema pour les statistiques du dashboard"""
+    """Schema pour les statistiques du dashboard admin"""
     total_users: int
     total_questions: int
     total_quiz_sessions: int

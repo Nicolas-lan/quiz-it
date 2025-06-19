@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Boolean, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Boolean, JSON, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from ..core.db import Base
@@ -38,7 +38,7 @@ class Category(Base):
     __tablename__ = "categories"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), unique=True, index=True, nullable=False)
+    name = Column(String(100), index=True, nullable=False)
     description = Column(Text)
     technology_id = Column(Integer, ForeignKey("technologies.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -46,6 +46,11 @@ class Category(Base):
     # Relations
     technology = relationship("Technology")
     questions = relationship("Question", back_populates="category")
+    
+    # Contrainte unique composite : un nom de catégorie unique par technologie
+    __table_args__ = (
+        UniqueConstraint('name', 'technology_id', name='_category_technology_uc'),
+    )
 
 class Question(Base):
     __tablename__ = "questions"

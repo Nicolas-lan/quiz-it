@@ -1,0 +1,241 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+
+const Dashboard = ({ onBack }) => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
+
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch(`${API_URL}/dashboard/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDashboardData(data);
+      } else {
+        setError('Erreur lors du chargement du dashboard');
+      }
+    } catch (err) {
+      setError('Erreur de connexion');
+      console.error('Erreur dashboard:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-2 text-gray-500">Chargement du dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="text-center py-8">
+          <p className="text-red-500">{error}</p>
+          <button
+            onClick={onBack}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retour
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const stats = dashboardData?.statistics;
+  const history = dashboardData?.quiz_history || [];
+
+  return (
+    <div className="max-w-6xl mx-auto p-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Dashboard - {dashboardData?.user?.full_name || dashboardData?.user?.username}
+        </h1>
+        <button
+          onClick={onBack}
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+        >
+          ← Retour
+        </button>
+      </div>
+
+      {/* Statistiques générales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Quiz Total</h3>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{stats?.total_quizzes || 0}</p>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Score Moyen</h3>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{stats?.average_score || 0}%</p>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Meilleur Score</h3>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{stats?.best_score || 0}%</p>
+        </div>
+        
+        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Temps Total</h3>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{formatTime(stats?.total_time_spent || 0)}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Quiz par technologie */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Quiz par Technologie</h2>
+          <div className="space-y-4">
+            {stats?.quizzes_by_technology && Object.entries(stats.quizzes_by_technology).map(([tech, count]) => {
+              const avgScore = stats.scores_by_technology[tech] || 0;
+              return (
+                <div key={tech} className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-gray-800">{tech}</p>
+                    <p className="text-sm text-gray-500">{count} quiz(s) - Moyenne: {avgScore}%</p>
+                  </div>
+                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full" 
+                      style={{ width: `${avgScore}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
+            {(!stats?.quizzes_by_technology || Object.keys(stats.quizzes_by_technology).length === 0) && (
+              <p className="text-gray-500 text-center py-4">Aucun quiz terminé</p>
+            )}
+          </div>
+        </div>
+
+        {/* Activité récente */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Activité Récente</h2>
+          <div className="space-y-3">
+            {stats?.recent_activity?.map((activity, index) => (
+              <div key={activity.id || index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div>
+                  <p className="font-medium text-gray-800">{activity.technology_name}</p>
+                  <p className="text-sm text-gray-500">
+                    {activity.correct_answers}/{activity.total_questions} - {formatDate(activity.completed_at)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className={`font-bold ${activity.score_percentage >= 70 ? 'text-green-600' : activity.score_percentage >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    {activity.score_percentage}%
+                  </p>
+                  <p className="text-xs text-gray-500">{formatTime(activity.time_spent_seconds)}</p>
+                </div>
+              </div>
+            )) || []}
+            {(!stats?.recent_activity || stats.recent_activity.length === 0) && (
+              <p className="text-gray-500 text-center py-4">Aucune activité récente</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Historique complet */}
+      {history.length > 0 && (
+        <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Historique Complet</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Technologie
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Score
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Questions
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Temps
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {history.slice(0, 10).map((quiz, index) => (
+                  <tr key={quiz.id || index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{quiz.technology_name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        quiz.score_percentage >= 70 ? 'bg-green-100 text-green-800' : 
+                        quiz.score_percentage >= 50 ? 'bg-yellow-100 text-yellow-800' : 
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {quiz.score_percentage}%
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {quiz.correct_answers}/{quiz.total_questions}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatTime(quiz.time_spent_seconds)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(quiz.completed_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;

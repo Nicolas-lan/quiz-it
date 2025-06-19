@@ -1,9 +1,9 @@
+import logging
 from sqlalchemy.orm import Session
 from ..models.database_models import User, Technology, Category, Question
 from ..core.auth import get_password_hash
-from ..core.logging import get_logger
 
-logger = get_logger("init_data")
+logger = logging.getLogger("quiz_app.init_data")
 
 def create_admin_user(db: Session):
     """Créer un utilisateur administrateur par défaut"""
@@ -13,13 +13,13 @@ def create_admin_user(db: Session):
             username="admin",
             email="admin@quiz.local",
             full_name="Administrator",
-            hashed_password=get_password_hash("admin123"),
+            hashed_password=get_password_hash("admin"),
             is_active=True,
             is_admin=True
         )
         db.add(admin)
         db.commit()
-        logger.info("✅ Utilisateur admin créé (admin/admin123)")
+        logger.info("✅ Utilisateur admin créé (admin/admin)")
     else:
         logger.info("👤 Utilisateur admin existe déjà")
 

@@ -1,50 +1,53 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './AuthModal';
 
-// Icônes SVG simples intégrées
+// Icônes simples
 const Icons = {
   Search: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
   ),
-  Code: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+  User: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
   ),
-  Database: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
-      <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
-      <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
+  Logout: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
     </svg>
   ),
-  Web: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clipRule="evenodd" />
-    </svg>
-  ),
-  Cloud: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z" />
+  Dashboard: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
   )
 };
 
-const HomePage = ({ onSelectTech }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
+const HomePage = ({ onSelectTech, onShowDashboard }) => {
   const [technologies, setTechnologies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+  
+  const { user, logout, isAuthenticated } = useAuth();
 
-  // Récupérer les technologies depuis l'API
   useEffect(() => {
     const fetchTechnologies = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/technologies`);
         if (response.ok) {
           const data = await response.json();
-          setTechnologies(data);
+          // Mapper les données de l'API aux noms utilisés par le frontend
+          const mappedTechnologies = data.map(tech => ({
+            ...tech,
+            originalName: tech.name, // Nom original pour l'API
+            displayName: tech.display_name || tech.name // Nom affiché
+          }));
+          setTechnologies(mappedTechnologies);
         } else {
           console.error('Failed to fetch technologies');
         }
@@ -58,75 +61,70 @@ const HomePage = ({ onSelectTech }) => {
     fetchTechnologies();
   }, []);
 
-  // Technologies statiques comme fallback
-  const staticTechnologies = {
-    frontend: [
-      { name: 'React', icon: 'react', color: '#61DAFB' },
-      { name: 'Angular', icon: 'angular', color: '#DD0031' },
-      { name: 'Vue.js', icon: 'vue', color: '#4FC08D' },
-      { name: 'JavaScript', icon: 'javascript', color: '#F7DF1E' },
-      { name: 'TypeScript', icon: 'typescript', color: '#3178C6' },
-    ],
-    backend: [
-      { name: 'Python', icon: 'python', color: '#3776AB' },
-      { name: 'Node.js', icon: 'nodejs', color: '#339933' },
-      { name: 'Java', icon: 'java', color: '#007396' },
-      { name: 'PHP', icon: 'php', color: '#777BB4' },
-      { name: 'C#', icon: 'csharp', color: '#239120' },
-    ],
-    database: [
-      { name: 'MySQL', icon: 'mysql', color: '#4479A1' },
-      { name: 'MongoDB', icon: 'mongodb', color: '#47A248' },
-      { name: 'PostgreSQL', icon: 'postgresql', color: '#336791' },
-      { name: 'Redis', icon: 'redis', color: '#DC382D' },
-    ],
-    cloud: [
-      { name: 'AWS', icon: 'aws', color: '#232F3E' },
-      { name: 'Docker', icon: 'docker', color: '#2496ED' },
-      { name: 'Kubernetes', icon: 'kubernetes', color: '#326CE5' },
-      { name: 'Azure', icon: 'azure', color: '#0089D6' },
-    ]
-  };
-
-  const categories = [
-    { id: 'all', name: 'Toutes', icon: <Icons.Code /> },
-    { id: 'frontend', name: 'Frontend', icon: <Icons.Web /> },
-    { id: 'backend', name: 'Backend', icon: <Icons.Database /> },
-    { id: 'database', name: 'Base de données', icon: <Icons.Database /> },
-    { id: 'cloud', name: 'Cloud & DevOps', icon: <Icons.Cloud /> }
-  ];
-
-  const filteredTechnologies = useMemo(() => {
-    let techs = [];
-    
-    // Utiliser les technologies de l'API si disponibles, sinon les statiques
-    if (technologies.length > 0) {
-      // Technologies depuis l'API
-      techs = technologies.map(tech => ({
-        name: tech.display_name || tech.name,
-        originalName: tech.name,
-        icon: tech.icon || '💻',
-        color: tech.color || '#007bff'
-      }));
-    } else {
-      // Technologies statiques
-      if (activeCategory === 'all') {
-        Object.values(staticTechnologies).forEach(categoryTechs => {
-          techs = [...techs, ...categoryTechs];
-        });
-      } else {
-        techs = staticTechnologies[activeCategory] || [];
-      }
-    }
-
-    // Filtrer selon le terme de recherche
-    return techs.filter(tech => 
-      tech.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, activeCategory, technologies]);
+  // Filtrer les technologies selon le terme de recherche
+  const filteredTechnologies = technologies.filter(tech => 
+    tech.displayName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-4">
+      {/* Header avec authentification */}
+      <div className="flex justify-between items-center mb-8">
+        <div className="text-center flex-1">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">Quiz IT</h1>
+          <p className="text-lg text-gray-600">
+            Testez vos connaissances sur différentes technologies IT
+          </p>
+        </div>
+        
+        {/* Boutons d'authentification */}
+        <div className="flex items-center space-x-4">
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-gray-700">
+                <Icons.User />
+                <span className="font-medium">{user?.username}</span>
+              </div>
+              <button
+                onClick={onShowDashboard}
+                className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                <Icons.Dashboard />
+                <span>Dashboard</span>
+              </button>
+              <button
+                onClick={logout}
+                className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+              >
+                <Icons.Logout />
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => {
+                  setAuthMode('login');
+                  setShowAuthModal(true);
+                }}
+                className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                Connexion
+              </button>
+              <button
+                onClick={() => {
+                  setAuthMode('register');
+                  setShowAuthModal(true);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors"
+              >
+                Inscription
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Barre de recherche */}
       <div className="relative mb-8">
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -141,52 +139,68 @@ const HomePage = ({ onSelectTech }) => {
         />
       </div>
 
-      {/* Catégories */}
-      <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
-        {categories.map(category => (
-          <button
-            key={category.id}
-            onClick={() => setActiveCategory(category.id)}
-            className={`flex items-center px-4 py-2 rounded-full transition-colors ${
-              activeCategory === category.id
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 hover:bg-gray-200'
-            }`}
-          >
-            <span className="mr-2">{category.icon}</span>
-            {category.name}
-          </button>
-        ))}
-      </div>
-
-      {/* Grille des technologies */}
+      {/* Technologies disponibles */}
       {loading ? (
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-2 text-gray-500">Chargement des technologies...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredTechnologies.map(tech => (
-            <button
-              key={tech.originalName || tech.name}
-              onClick={() => onSelectTech(tech.originalName || tech.name)}
-              className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-            >
-              <span className="font-medium text-gray-800">{tech.name}</span>
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              Technologies disponibles ({filteredTechnologies.length})
+            </h2>
+            <p className="text-gray-600">
+              Cliquez sur une technologie pour commencer le quiz
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredTechnologies.map(tech => (
+              <button
+                key={tech.id}
+                onClick={() => onSelectTech(tech.originalName)}
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-300 group"
+              >
+                <div className="text-center">
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                    {tech.icon || '💻'}
+                  </div>
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                    {tech.displayName}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {tech.description}
+                  </p>
+                  <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                    Quiz disponible
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Message si aucun résultat */}
-      {filteredTechnologies.length === 0 && (
+      {!loading && filteredTechnologies.length === 0 && (
         <div className="text-center py-8 text-gray-500">
-          Aucune technologie trouvée pour "{searchTerm}"
+          {searchTerm ? 
+            `Aucune technologie trouvée pour "${searchTerm}"` : 
+            'Aucune technologie disponible'
+          }
         </div>
       )}
+
+      {/* Modal d'authentification */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+      />
     </div>
   );
 };
 
-export default HomePage; 
+export default HomePage;

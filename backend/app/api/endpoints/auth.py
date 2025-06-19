@@ -19,10 +19,10 @@ from ...schemas import (
     UserUpdate,
     LoginRequest
 )
-from ...core.logging import get_logger
+import logging
 
 router = APIRouter()
-logger = get_logger("auth")
+logger = logging.getLogger("quiz_app.auth")
 
 @router.post("/register", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):

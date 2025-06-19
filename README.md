@@ -1,31 +1,43 @@
-# Quiz IT - Plateforme d'apprentissage
+# 🎯 Quiz IT - Plateforme d'apprentissage
 
-Une application de quiz interactive pour tester vos connaissances en technologies (Spark, Git, Docker).
+Une application de quiz interactive moderne pour tester vos connaissances en technologies IT.
 
-## Technologies utilisées
+## 🚀 Technologies utilisées
 
 ### Backend
-- Python 3.9
-- FastAPI
-- SQLAlchemy
-- SQLite
+- **Python 3.9** avec FastAPI
+- **PostgreSQL** pour la base de données
+- **SQLAlchemy** ORM avec Alembic migrations
+- **JWT** pour l'authentification
+- **Pydantic** pour la validation des données
 
 ### Frontend
-- React
-- Tailwind CSS
-- Axios
+- **React 18** avec hooks modernes
+- **Tailwind CSS** pour le styling
+- **Axios** pour les appels API
+- **React Router** pour la navigation
 
 ### Infrastructure
-- Docker
-- Docker Compose
+- **Docker & Docker Compose** pour la containerisation
+- **Nginx** (ready for production)
+- **PostgreSQL** en conteneur
 
-## Fonctionnalités
+## ✨ Fonctionnalités
 
-- Quiz sur différentes technologies (Spark, Git, Docker)
-- Interface utilisateur moderne et responsive
-- Système de score
-- Filtrage par technologie et niveau de difficulté
-- Explications détaillées pour chaque question
+### Actuellement disponible
+- 🎯 **3 technologies** : Apache Spark, Docker, Git
+- 📝 **36 questions** au total (10 Spark, 14 Docker, 12 Git)
+- 🎨 **Interface moderne** et responsive
+- ⚡ **Système de scoring** en temps réel
+- 🔄 **Questions dynamiques** avec différents niveaux de difficulté
+- 🔍 **Recherche** et filtrage par technologie
+
+### En développement (voir ROADMAP.md)
+- 🌙 Mode sombre
+- 👤 Profils utilisateur et historique
+- 🏆 Leaderboard et classements
+- 📊 Statistiques détaillées
+- 📱 Version mobile optimisée
 
 ## Installation
 

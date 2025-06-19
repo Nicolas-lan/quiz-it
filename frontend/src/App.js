@@ -1,22 +1,47 @@
 import React, { useState } from 'react';
+import { AuthProvider } from './context/AuthContext';
 import HomePage from './components/HomePage';
-import SparkQuiz from './components/SparkQuiz';
+import Quiz from './components/Quiz';
+import Dashboard from './components/Dashboard';
 
 function App() {
   const [selectedTech, setSelectedTech] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false);
 
-  if (!selectedTech) {
+  const handleBack = () => {
+    setSelectedTech(null);
+    setShowDashboard(false);
+  };
+
+  if (showDashboard) {
     return (
-      <div className="App">
-        <HomePage onSelectTech={setSelectedTech} />
-      </div>
+      <AuthProvider>
+        <div className="App">
+          <Dashboard onBack={handleBack} />
+        </div>
+      </AuthProvider>
+    );
+  }
+
+  if (selectedTech) {
+    return (
+      <AuthProvider>
+        <div className="App">
+          <Quiz selectedTechnology={selectedTech} onBack={handleBack} />
+        </div>
+      </AuthProvider>
     );
   }
 
   return (
-    <div className="App">
-      <SparkQuiz technology={selectedTech} onBack={() => setSelectedTech(null)} />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <HomePage 
+          onSelectTech={setSelectedTech} 
+          onShowDashboard={() => setShowDashboard(true)} 
+        />
+      </div>
+    </AuthProvider>
   );
 }
 

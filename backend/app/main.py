@@ -1,18 +1,19 @@
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
-from fastapi import FastAPI, Depends, HTTPException, status
+from typing import List
+
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from typing import List
-from . import models, schemas
-from .core.db import get_db, SessionLocal, engine
+from sqlalchemy.sql import func
+
+from . import schemas
+from .core.db import get_db, engine, Base, SessionLocal
 from .core.init_data import init_database
 from .core.auth import get_current_active_user, get_optional_current_user
-from .api.endpoints import auth
-from .models.database_models import User, Technology, Question
-from sqlalchemy.sql import func
+from .api.endpoints import auth, dashboard
+from .models.database_models import User, Technology, Question, QuizSession
 
 # Configuration du logging
 def setup_simple_logging():
@@ -36,7 +37,6 @@ setup_simple_logging()
 logger = logging.getLogger("quiz_app")
 
 # Créer les tables si elles n'existent pas
-from .core.db import Base
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -45,12 +45,12 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Middleware CORS - Plus permissif pour le développement
+# Middleware CORS - Configuration plus robuste
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Temporairement permissif pour le debug
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -85,6 +85,9 @@ def startup_event():
 
 # Inclusion des routes d'authentification
 app.include_router(auth.router, prefix="/auth", tags=["authentification"])
+
+# Inclusion des routes du dashboard
+app.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 
 @app.get("/")
 def read_root():
@@ -301,13 +304,11 @@ def get_random_question(
 @app.post("/quiz/start", response_model=schemas.QuizSession)
 def start_quiz(
     quiz_data: schemas.QuizSessionCreate,
-    current_user: models.database_models.User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """Démarrer une nouvelle session de quiz"""
     logger.info(f"Début de quiz pour {current_user.username}")
-    
-    from .models.database_models import QuizSession, Technology
     
     # Vérifier que la technologie existe
     tech = db.query(Technology).filter(Technology.id == quiz_data.technology_id).first()
@@ -315,7 +316,7 @@ def start_quiz(
         raise HTTPException(status_code=404, detail="Technologie non trouvée")
     
     # Créer la session
-    session = models.database_models.QuizSession(
+    session = QuizSession(
         user_id=current_user.id,
         technology_id=quiz_data.technology_id,
         status="in_progress"
@@ -330,7 +331,7 @@ def start_quiz(
 
 @app.get("/quiz/sessions", response_model=List[schemas.QuizSession])
 def get_user_quiz_sessions(
-    current_user: models.database_models.User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """Récupérer les sessions de quiz de l'utilisateur"""
