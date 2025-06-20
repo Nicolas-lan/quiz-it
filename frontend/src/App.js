@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import HomePage from './components/HomePage';
-import Quiz from './components/Quiz';
-import Dashboard from './components/Dashboard';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// Lazy loading des composants moins critiques
+const Quiz = lazy(() => import('./components/Quiz'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
 
 function App() {
   const [selectedTech, setSelectedTech] = useState(null);
@@ -15,33 +19,43 @@ function App() {
 
   if (showDashboard) {
     return (
-      <AuthProvider>
-        <div className="App">
-          <Dashboard onBack={handleBack} />
-        </div>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <div className="App">
+            <Suspense fallback={<LoadingSpinner />}>
+              <Dashboard onBack={handleBack} />
+            </Suspense>
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
     );
   }
 
   if (selectedTech) {
     return (
-      <AuthProvider>
-        <div className="App">
-          <Quiz selectedTechnology={selectedTech} onBack={handleBack} />
-        </div>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <div className="App">
+            <Suspense fallback={<LoadingSpinner />}>
+              <Quiz selectedTechnology={selectedTech} onBack={handleBack} />
+            </Suspense>
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
     );
   }
 
   return (
-    <AuthProvider>
-      <div className="App">
-        <HomePage 
-          onSelectTech={setSelectedTech} 
-          onShowDashboard={() => setShowDashboard(true)} 
-        />
-      </div>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <div className="App">
+          <HomePage 
+            onSelectTech={setSelectedTech} 
+            onShowDashboard={() => setShowDashboard(true)} 
+          />
+        </div>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

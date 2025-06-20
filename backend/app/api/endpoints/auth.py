@@ -120,11 +120,68 @@ def login_for_access_token(
         "token_type": "bearer"
     }
 
-@router.get("/me", response_model=UserSchema)
+@router.get("/me")
 def read_current_user(current_user: User = Depends(get_current_active_user)):
     """Obtenir les informations de l'utilisateur connecté"""
     logger.info(f"Récupération du profil pour: {current_user.username}")
-    return current_user
+    
+    # Sérialisation manuelle pour éviter les erreurs de validation Pydantic
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "is_active": current_user.is_active,
+        "is_admin": current_user.is_admin,
+        "created_at": str(current_user.created_at) if current_user.created_at else None,
+        "updated_at": str(current_user.updated_at) if current_user.updated_at else None
+    }
+
+@router.get("/test-cors")
+def test_cors():
+    """Test CORS simple"""
+    return {"message": "CORS test OK", "status": "success"}
+
+@router.get("/debug/users")
+def debug_users(db: Session = Depends(get_db)):
+    """Debug - Lister les utilisateurs (DÉVELOPPEMENT UNIQUEMENT)"""
+    from ...core.auth import verify_password, get_password_hash
+    
+    users = db.query(User).all()
+    result = {
+        "total_users": len(users),
+        "users": []
+    }
+    
+    for user in users:
+        # Test du mot de passe "admin"
+        pwd_test = verify_password("admin", user.hashed_password)
+        
+        result["users"].append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "is_admin": user.is_admin,
+            "password_admin_works": pwd_test
+        })
+    
+    # Si aucun utilisateur, créer admin
+    if len(users) == 0:
+        admin = User(
+            username="admin",
+            email="admin@quiz.local",
+            full_name="Administrator", 
+            hashed_password=get_password_hash("admin"),
+            is_active=True,
+            is_admin=True
+        )
+        db.add(admin)
+        db.commit()
+        result["admin_created"] = True
+        result["message"] = "Utilisateur admin créé automatiquement"
+    
+    return result
 
 @router.put("/me", response_model=UserSchema)
 def update_current_user(

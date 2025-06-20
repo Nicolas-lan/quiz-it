@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import AuthModal from './AuthModal';
 
-// Icônes simples
+// Icônes simples (déplacé hors du composant pour éviter la recréation)
 const Icons = {
   Search: () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,6 +24,16 @@ const Icons = {
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
+  ),
+  Moon: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+    </svg>
+  ),
+  Sun: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
   )
 };
 
@@ -34,6 +45,26 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
   const [authMode, setAuthMode] = useState('login');
   
   const { user, logout, isAuthenticated } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
+
+  // Mémoriser les callbacks pour éviter les re-renders inutiles
+  const handleLoginClick = useCallback(() => {
+    setAuthMode('login');
+    setShowAuthModal(true);
+  }, []);
+
+  const handleRegisterClick = useCallback(() => {
+    setAuthMode('register');
+    setShowAuthModal(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setShowAuthModal(false);
+  }, []);
+
+  const handleSearchChange = useCallback((e) => {
+    setSearchTerm(e.target.value);
+  }, []);
 
   useEffect(() => {
     const fetchTechnologies = async () => {
@@ -61,40 +92,51 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
     fetchTechnologies();
   }, []);
 
-  // Filtrer les technologies selon le terme de recherche
-  const filteredTechnologies = technologies.filter(tech => 
-    tech.displayName.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtrer les technologies selon le terme de recherche (mémorisé)
+  const filteredTechnologies = useMemo(() => 
+    technologies.filter(tech => 
+      tech.displayName.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [technologies, searchTerm]
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+      <div className="max-w-6xl mx-auto p-4">
       {/* Header avec authentification */}
       <div className="flex justify-between items-center mb-8">
         <div className="text-center flex-1">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Quiz IT</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Quiz IT</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Testez vos connaissances sur différentes technologies IT
           </p>
         </div>
         
         {/* Boutons d'authentification */}
         <div className="flex items-center space-x-4">
+          {/* Toggle theme */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            title={isDarkMode ? 'Mode clair' : 'Mode sombre'}
+          >
+            {isDarkMode ? <Icons.Sun /> : <Icons.Moon />}
+          </button>
           {isAuthenticated ? (
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-700">
+              <div className="flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                 <Icons.User />
                 <span className="font-medium">{user?.username}</span>
               </div>
               <button
                 onClick={onShowDashboard}
-                className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
               >
                 <Icons.Dashboard />
                 <span>Dashboard</span>
               </button>
               <button
                 onClick={logout}
-                className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
               >
                 <Icons.Logout />
                 <span>Déconnexion</span>
@@ -107,7 +149,7 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
                   setAuthMode('login');
                   setShowAuthModal(true);
                 }}
-                className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                className="px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
               >
                 Connexion
               </button>
@@ -116,7 +158,7 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
                   setAuthMode('register');
                   setShowAuthModal(true);
                 }}
-                className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors"
+                className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-600 rounded-md transition-colors"
               >
                 Inscription
               </button>
@@ -127,53 +169,53 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
 
       {/* Barre de recherche */}
       <div className="relative mb-8">
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
           <Icons.Search />
         </div>
         <input
           type="search"
           placeholder="Rechercher une technologie..."
-          className="w-full pl-12 pr-4 py-3 rounded-lg border bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full pl-12 pr-4 py-3 rounded-lg border bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
         />
       </div>
 
-      {/* Technologies disponibles */}
-      {loading ? (
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-2 text-gray-500">Chargement des technologies...</p>
-        </div>
-      ) : (
-        <>
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Technologies disponibles ({filteredTechnologies.length})
-            </h2>
-            <p className="text-gray-600">
-              Cliquez sur une technologie pour commencer le quiz
-            </p>
+        {/* Technologies disponibles */}
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400 mx-auto"></div>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">Chargement des technologies...</p>
           </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
+                Technologies disponibles ({filteredTechnologies.length})
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Cliquez sur une technologie pour commencer le quiz
+              </p>
+            </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredTechnologies.map(tech => (
               <button
                 key={tech.id}
                 onClick={() => onSelectTech(tech.originalName)}
-                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-300 group"
+                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 group"
               >
                 <div className="text-center">
                   <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {tech.icon || '💻'}
                   </div>
-                  <h3 className="font-semibold text-lg text-gray-800 mb-2">
+                  <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">
                     {tech.displayName}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                     {tech.description}
                   </p>
-                  <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  <div className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
                     Quiz disponible
                   </div>
                 </div>
@@ -183,22 +225,23 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
         </>
       )}
 
-      {/* Message si aucun résultat */}
-      {!loading && filteredTechnologies.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          {searchTerm ? 
-            `Aucune technologie trouvée pour "${searchTerm}"` : 
-            'Aucune technologie disponible'
-          }
-        </div>
-      )}
+        {/* Message si aucun résultat */}
+        {!loading && filteredTechnologies.length === 0 && (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            {searchTerm ? 
+              `Aucune technologie trouvée pour "${searchTerm}"` : 
+              'Aucune technologie disponible'
+            }
+          </div>
+        )}
 
-      {/* Modal d'authentification */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        mode={authMode}
-      />
+        {/* Modal d'authentification */}
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={handleCloseModal}
+          mode={authMode}
+        />
+      </div>
     </div>
   );
 };
