@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import ConfirmationModal from './ConfirmationModal';
 
 const Quiz = ({ selectedTechnology, onBack }) => {
@@ -14,7 +15,25 @@ const Quiz = ({ selectedTechnology, onBack }) => {
   const [startTime, setStartTime] = useState(null);
   
   const { token, isAuthenticated } = useAuth();
+  const { isDarkMode } = useTheme();
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+  // Mémoriser les calculs de score local pour éviter les recalculs
+  const localScore = useMemo(() => {
+    const correctAnswers = userAnswers.filter(a => a.is_correct).length;
+    const totalQuestions = questions.length;
+    return {
+      correct: correctAnswers,
+      total: totalQuestions,
+      percentage: totalQuestions > 0 ? ((correctAnswers / totalQuestions) * 100).toFixed(1) : 0
+    };
+  }, [userAnswers, questions.length]);
+
+  // Mémoriser l'icône de résultat
+  const resultIcon = useMemo(() => {
+    const score = finalResults ? finalResults.score_percentage : parseFloat(localScore.percentage);
+    return score >= 80 ? '🎉' : score >= 60 ? '👍' : '📚';
+  }, [finalResults, localScore.percentage]);
 
   useEffect(() => {
     if (selectedTechnology) {
@@ -154,36 +173,49 @@ const Quiz = ({ selectedTechnology, onBack }) => {
     setShowResults(true);
   };
 
-  const resetQuiz = () => {
+  // Mémoriser les callbacks pour éviter les re-renders
+  const resetQuiz = useCallback(() => {
     fetchQuestions();
-  };
+  }, []);
 
-  const handleBackClick = () => {
+  const handleBackClick = useCallback(() => {
     if (!showResults && currentQuestion > 0) {
       setShowConfirmModal(true);
     } else {
       onBack();
     }
-  };
+  }, [showResults, currentQuestion, onBack]);
+
+  const handleConfirmModalClose = useCallback(() => {
+    setShowConfirmModal(false);
+  }, []);
+
+  const handleConfirmModalConfirm = useCallback(() => {
+    setShowConfirmModal(false);
+    onBack();
+  }, [onBack]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Chargement des questions...</div>
+      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-xl text-gray-800 dark:text-white">Chargement des questions...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">
-          Quiz {selectedTechnology ? selectedTechnology.toUpperCase() : ''}
-        </h1>
-        <button
-          onClick={handleBackClick}
-          className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors flex items-center"
-        >
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="mb-8 flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+            Quiz {selectedTechnology ? selectedTechnology.toUpperCase() : ''}
+          </h1>
+          <button
+            onClick={handleBackClick}
+            className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center"
+          >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
@@ -193,105 +225,99 @@ const Quiz = ({ selectedTechnology, onBack }) => {
 
       {!showResults ? (
         questions.length > 0 ? (
-          <div className="bg-white shadow-lg rounded-lg p-6">
-            <div className="mb-4">
-              <span className="text-sm text-gray-500">
-                Question {currentQuestion + 1} sur {questions.length}
-              </span>
-              <span className="ml-4 text-sm text-gray-500">
-                Technologie: {questions[currentQuestion].technology}
-              </span>
-              <span className="ml-4 text-sm text-gray-500">
-                Catégorie: {questions[currentQuestion].category}
-              </span>
-              <span className="ml-4 text-sm text-gray-500">
-                Difficulté: {questions[currentQuestion].difficulty}/5
-              </span>
-            </div>
+            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+              <div className="mb-4">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Question {currentQuestion + 1} sur {questions.length}
+                </span>
+                <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
+                  Technologie: {questions[currentQuestion].technology}
+                </span>
+                <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
+                  Catégorie: {questions[currentQuestion].category}
+                </span>
+                <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
+                  Difficulté: {questions[currentQuestion].difficulty}/5
+                </span>
+              </div>
 
-            <h2 className="text-xl font-semibold mb-4">
-              {questions[currentQuestion].question_text}
-            </h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+                {questions[currentQuestion].question_text}
+              </h2>
 
-            <div className="space-y-2">
-              {questions[currentQuestion].options.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleAnswer(option)}
-                  className="w-full p-3 text-left border rounded hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                >
-                  {option}
-                </button>
-              ))}
+              <div className="space-y-2">
+                {questions[currentQuestion].options.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(option)}
+                    className="w-full p-3 text-left border dark:border-gray-600 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-colors text-gray-800 dark:text-gray-200"
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-center bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-4">Aucune question disponible</h2>
-            <p className="text-gray-600">
-              Aucune question trouvée pour la technologie {selectedTechnology}.
-            </p>
-          </div>
+          ) : (
+            <div className="text-center bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Aucune question disponible</h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Aucune question trouvée pour la technologie {selectedTechnology}.
+              </p>
+            </div>
         )
-      ) : (
-        <div className="text-center bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4">Quiz terminé !</h2>
+        ) : (
+          <div className="text-center bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Quiz terminé !</h2>
           <div className="text-6xl mb-4">
-            {finalResults ? 
-              (finalResults.score_percentage >= 80 ? '🎉' : finalResults.score_percentage >= 60 ? '👍' : '📚') :
-              (userAnswers.filter(a => a.is_correct).length / questions.length >= 0.8 ? '🎉' : 
-               userAnswers.filter(a => a.is_correct).length / questions.length >= 0.6 ? '👍' : '📚')
-            }
+            {resultIcon}
           </div>
           
           {finalResults ? (
-            <>
-              <p className="text-xl mb-4">
-                Score final: {finalResults.correct_answers} sur {finalResults.total_questions}
-              </p>
-              <p className="text-lg mb-4 text-gray-600">
-                Pourcentage: {finalResults.score_percentage}%
-              </p>
-              <p className="text-sm mb-6 text-gray-500">
-                Temps: {Math.floor(finalResults.time_spent_seconds / 60)}m {finalResults.time_spent_seconds % 60}s
-              </p>
-            </>
+              <>
+                <p className="text-xl mb-4 text-gray-800 dark:text-white">
+                  Score final: {finalResults.correct_answers} sur {finalResults.total_questions}
+                </p>
+                <p className="text-lg mb-4 text-gray-600 dark:text-gray-300">
+                  Pourcentage: {finalResults.score_percentage}%
+                </p>
+                <p className="text-sm mb-6 text-gray-500 dark:text-gray-400">
+                  Temps: {Math.floor(finalResults.time_spent_seconds / 60)}m {finalResults.time_spent_seconds % 60}s
+                </p>
+              </>
           ) : (
-            <>
-              <p className="text-xl mb-4">
-                Score local: {userAnswers.filter(a => a.is_correct).length} sur {questions.length}
-              </p>
-              <p className="text-lg mb-6 text-gray-600">
-                Pourcentage: {((userAnswers.filter(a => a.is_correct).length / questions.length) * 100).toFixed(1)}%
-              </p>
-            </>
+              <>
+                <p className="text-xl mb-4 text-gray-800 dark:text-white">
+                  Score local: {localScore.correct} sur {localScore.total}
+                </p>
+                <p className="text-lg mb-6 text-gray-600 dark:text-gray-300">
+                  Pourcentage: {localScore.percentage}%
+                </p>
+              </>
           )}
           
-          <div className="space-x-4">
-            <button
-              onClick={resetQuiz}
-              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition-colors"
-            >
-              Recommencer
-            </button>
-            <button
-              onClick={onBack}
-              className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors"
-            >
-              Retour à l'accueil
-            </button>
+            <div className="space-x-4">
+              <button
+                onClick={resetQuiz}
+                className="bg-blue-500 dark:bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors"
+              >
+                Recommencer
+              </button>
+              <button
+                onClick={onBack}
+                className="bg-gray-500 dark:bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-600 dark:hover:bg-gray-500 transition-colors"
+              >
+                Retour à l'accueil
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <ConfirmationModal
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onConfirm={() => {
-          setShowConfirmModal(false);
-          onBack();
-        }}
-      />
+        <ConfirmationModal
+          isOpen={showConfirmModal}
+          onClose={handleConfirmModalClose}
+          onConfirm={handleConfirmModalConfirm}
+        />
+      </div>
     </div>
   );
 };
