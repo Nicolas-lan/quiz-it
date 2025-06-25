@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../i18n/LanguageContext';
+import { useQuestionTranslation, QuestionTranslationService } from '../i18n/questionTranslationService';
 import ConfirmationModal from './ConfirmationModal';
+import SimpleTranslatedQuestion from './SimpleTranslatedQuestion';
 
 const Quiz = ({ selectedTechnology, onBack }) => {
   const [questions, setQuestions] = useState([]);
@@ -16,6 +19,7 @@ const Quiz = ({ selectedTechnology, onBack }) => {
   
   const { token, isAuthenticated } = useAuth();
   const { isDarkMode } = useTheme();
+  const { language } = useLanguage();
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
   // Mémoriser les calculs de score local pour éviter les recalculs
@@ -100,6 +104,31 @@ const Quiz = ({ selectedTechnology, onBack }) => {
     const session = await sessionResponse.json();
     setQuizSession(session);
     console.log('Session quiz démarrée:', session.id);
+  };
+
+  // Fonction pour gérer la sélection d'une réponse (sans avancer)
+  const handleAnswerSubmit = (answer) => {
+    const newAnswer = {
+      question_id: questions[currentQuestion].id,
+      user_answer: answer,
+      correct_answer: questions[currentQuestion].correct_answer,
+      is_correct: answer === questions[currentQuestion].correct_answer
+    };
+    
+    // Mettre à jour ou ajouter la réponse pour cette question
+    const updatedAnswers = [...userAnswers];
+    updatedAnswers[currentQuestion] = newAnswer;
+    setUserAnswers(updatedAnswers);
+  };
+
+  // Fonction pour passer à la question suivante
+  const handleNextQuestion = async () => {
+    if (currentQuestion + 1 < questions.length) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      // Terminer le quiz
+      await finishQuiz();
+    }
   };
 
   const handleAnswer = async (answer) => {
@@ -225,38 +254,15 @@ const Quiz = ({ selectedTechnology, onBack }) => {
 
       {!showResults ? (
         questions.length > 0 ? (
-            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
-              <div className="mb-4">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Question {currentQuestion + 1} sur {questions.length}
-                </span>
-                <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
-                  Technologie: {questions[currentQuestion].technology}
-                </span>
-                <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
-                  Catégorie: {questions[currentQuestion].category}
-                </span>
-                <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
-                  Difficulté: {questions[currentQuestion].difficulty}/5
-                </span>
-              </div>
-
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
-                {questions[currentQuestion].question_text}
-              </h2>
-
-              <div className="space-y-2">
-                {questions[currentQuestion].options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswer(option)}
-                    className="w-full p-3 text-left border dark:border-gray-600 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-colors text-gray-800 dark:text-gray-200"
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
+          <SimpleTranslatedQuestion
+            question={questions[currentQuestion]}
+            currentQuestion={currentQuestion}
+            totalQuestions={questions.length}
+            onAnswer={handleAnswerSubmit}
+            onNext={handleNextQuestion}
+            userAnswer={userAnswers[currentQuestion]?.user_answer}
+            localScore={localScore}
+          />
           ) : (
             <div className="text-center bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Aucune question disponible</h2>

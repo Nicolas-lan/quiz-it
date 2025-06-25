@@ -1,20 +1,42 @@
-# Script d'Import de Questions avec Images
+# Script Unifié d'Import de Questions et Technologies
 
 ## 🚀 Utilisation
 
-### Import basique
+### Import simple d'une technologie
 ```bash
-# Dans le container backend
-docker exec -it quiz-backend python scripts/add_questions.py --tech spark --file questions_spark.json
+# Dans le container backend  
+docker exec -it quiz-backend python scripts/unified_import.py --tech "JavaScript" --file javascript_questions.json
 ```
 
 ### Import avec images
 ```bash
 # Avec dossier d'images local
-docker exec -it quiz-backend python scripts/add_questions.py \
-  --tech spark \
-  --file questions_spark.json \
+docker exec -it quiz-backend python scripts/unified_import.py \
+  --tech "Spark" \
+  --file spark_questions.json \
   --images-dir /app/data/images/spark
+```
+
+### Import batch de toutes les technologies
+```bash
+# Import automatique de tous les fichiers par défaut
+docker exec -it quiz-backend python scripts/unified_import.py --batch-import
+```
+
+### Créer une nouvelle technologie
+```bash
+# Créer une technologie avec métadonnées personnalisées
+docker exec -it quiz-backend python scripts/unified_import.py \
+  --create-tech "Kubernetes" \
+  --display-name "Kubernetes" \
+  --icon "⚓" \
+  --color "#326ce5"
+```
+
+### Afficher les statistiques
+```bash
+# Voir l'état actuel de la base
+docker exec -it quiz-backend python scripts/unified_import.py --stats
 ```
 
 ## 📁 Structure des Fichiers

@@ -90,6 +90,10 @@ app.include_router(auth.router, prefix="/auth", tags=["authentification"])
 # Inclusion des routes du dashboard
 app.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 
+# Inclusion des routes de traduction
+from .api.endpoints import translate
+app.include_router(translate.router, prefix="/api/translate", tags=["traduction"])
+
 @app.get("/")
 def read_root():
     """Page d'accueil de l'API"""

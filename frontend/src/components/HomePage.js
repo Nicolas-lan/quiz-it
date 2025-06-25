@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from '../i18n/useTranslation';
 import AuthModal from './AuthModal';
+import LanguageSelector from './LanguageSelector';
 
 // Icônes simples (déplacé hors du composant pour éviter la recréation)
 const Icons = {
@@ -46,6 +48,7 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
   
   const { user, logout, isAuthenticated } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { t } = useTranslation();
 
   // Mémoriser les callbacks pour éviter les re-renders inutiles
   const handleLoginClick = useCallback(() => {
@@ -105,19 +108,22 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
       {/* Header avec authentification */}
       <div className="flex justify-between items-center mb-8">
         <div className="text-center flex-1">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">Quiz IT</h1>
+          <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">{t('quiz.title')}</h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Testez vos connaissances sur différentes technologies IT
+            {t('quiz.selectTechnology')}
           </p>
         </div>
         
         {/* Boutons d'authentification */}
         <div className="flex items-center space-x-4">
+          {/* Sélecteur de langue */}
+          <LanguageSelector />
+          
           {/* Toggle theme */}
           <button
             onClick={toggleTheme}
             className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
-            title={isDarkMode ? 'Mode clair' : 'Mode sombre'}
+            title={isDarkMode ? t('theme.light') : t('theme.dark')}
           >
             {isDarkMode ? <Icons.Sun /> : <Icons.Moon />}
           </button>
@@ -132,14 +138,14 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
                 className="flex items-center space-x-2 px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
               >
                 <Icons.Dashboard />
-                <span>Dashboard</span>
+                <span>{t('navigation.dashboard')}</span>
               </button>
               <button
                 onClick={logout}
                 className="flex items-center space-x-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
               >
                 <Icons.Logout />
-                <span>Déconnexion</span>
+                <span>{t('navigation.logout')}</span>
               </button>
             </div>
           ) : (
@@ -151,7 +157,7 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
                 }}
                 className="px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
               >
-                Connexion
+                {t('auth.login')}
               </button>
               <button
                 onClick={() => {
@@ -160,7 +166,7 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
                 }}
                 className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700 dark:hover:bg-blue-600 rounded-md transition-colors"
               >
-                Inscription
+                {t('auth.register')}
               </button>
             </div>
           )}
@@ -174,7 +180,7 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
         </div>
         <input
           type="search"
-          placeholder="Rechercher une technologie..."
+          placeholder={t('common.search') + '...'}
           className="w-full pl-12 pr-4 py-3 rounded-lg border bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400"
           value={searchTerm}
           onChange={handleSearchChange}
@@ -185,17 +191,14 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 dark:border-blue-400 mx-auto"></div>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">Chargement des technologies...</p>
+            <p className="mt-2 text-gray-500 dark:text-gray-400">{t('common.loadingTechnologies')}</p>
           </div>
         ) : (
           <>
             <div className="mb-6">
               <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
-                Technologies disponibles ({filteredTechnologies.length})
+                {t('common.availableTechnologies')} ({filteredTechnologies.length})
               </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Cliquez sur une technologie pour commencer le quiz
-              </p>
             </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -209,15 +212,9 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
                   <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                     {tech.icon || '💻'}
                   </div>
-                  <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">
+                  <h3 className="font-semibold text-lg text-gray-800 dark:text-white">
                     {tech.displayName}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    {tech.description}
-                  </p>
-                  <div className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full">
-                    Quiz disponible
-                  </div>
                 </div>
               </button>
             ))}
@@ -229,8 +226,8 @@ const HomePage = ({ onSelectTech, onShowDashboard }) => {
         {!loading && filteredTechnologies.length === 0 && (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             {searchTerm ? 
-              `Aucune technologie trouvée pour "${searchTerm}"` : 
-              'Aucune technologie disponible'
+              `${t('common.noTechnologyFound')} "${searchTerm}"` : 
+              t('common.noTechnologyAvailable')
             }
           </div>
         )}

@@ -1,6 +1,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 import HomePage from './components/HomePage';
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -19,43 +20,49 @@ function App() {
 
   if (showDashboard) {
     return (
-      <ThemeProvider>
-        <AuthProvider>
-          <div className="App">
-            <Suspense fallback={<LoadingSpinner />}>
-              <Dashboard onBack={handleBack} />
-            </Suspense>
-          </div>
-        </AuthProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="App">
+              <Suspense fallback={<LoadingSpinner />}>
+                <Dashboard onBack={handleBack} />
+              </Suspense>
+            </div>
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     );
   }
 
   if (selectedTech) {
     return (
-      <ThemeProvider>
-        <AuthProvider>
-          <div className="App">
-            <Suspense fallback={<LoadingSpinner />}>
-              <Quiz selectedTechnology={selectedTech} onBack={handleBack} />
-            </Suspense>
-          </div>
-        </AuthProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <div className="App">
+              <Suspense fallback={<LoadingSpinner />}>
+                <Quiz selectedTechnology={selectedTech} onBack={handleBack} />
+              </Suspense>
+            </div>
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     );
   }
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <div className="App">
-          <HomePage 
-            onSelectTech={setSelectedTech} 
-            onShowDashboard={() => setShowDashboard(true)} 
-          />
-        </div>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <div className="App">
+            <HomePage 
+              onSelectTech={setSelectedTech} 
+              onShowDashboard={() => setShowDashboard(true)} 
+            />
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
 
